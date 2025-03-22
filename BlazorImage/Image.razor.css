@@ -1,0 +1,117 @@
+figure {
+    position: relative;
+    display: block; 
+    margin: 0;  
+}
+
+
+
+img[loading="eager"] {
+    contain-intrinsic-size: 100vw auto;
+    
+}
+
+/* Shimmer Animation */
+@keyframes shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+
+/*placeholder will remove when image load*/
+._blazor_lazy_load.placeholder {
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    margin: 0;
+    
+    background: linear-gradient(90deg, #f0f0f0, #e0e0e0, #f0f0f0); /* Simplified Gradient */
+    background-size: 400px 100%; /* Reduced background size */
+    animation: shimmer 1.5s linear infinite; /* Slightly slower */
+    border-radius: 8px;
+    will-change: background-position;
+}   
+
+._blazor_lazy_load {  
+    opacity: 0.8;
+    transition: filter 0.3s, opacity 0.3s ease-in-out;
+    filter: blur(5px); 
+}
+
+._blazor_lazy_load.blazorlazyloaded {
+    filter: blur(0);
+    opacity: 1;
+
+}
+
+.default-caption {
+    font-size: clamp(0.875rem, 2vw, 1rem);
+    padding-inline-start: 0.5em;
+    padding-block-end: 0.1em;
+    margin-block-start: 0.5rem;
+    color: #555;
+}
+
+.loading-spinner {
+    display: flex;
+    align-items: center;
+    position: absolute;
+    top: 0;
+    background: darkblue;
+    color: white;
+    width: 100%;
+    padding: 5px;
+}
+
+.spinner-border {
+    border: 0.25em solid currentColor;
+    border-radius: 50%;
+    border-top-color: transparent;
+    width: 1rem;
+    height: 1rem;
+    margin-right: 4px;
+    animation: spinner-rotate 1.2s linear infinite;
+    color: #0d6efd;
+}
+
+@keyframes spinner-rotate {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.error-message {
+    padding: 0.75rem 1rem;
+    border: 1px solid;
+    word-wrap: break-word;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    color: #dc2626;
+    border-radius: 0.25rem;
+    background-color: #fef2f2;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    ._blazor_lazy_load,
+    .default-caption,
+    .spinner-border {
+        transition: none !important;
+        animation: none !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .default-caption {
+        font-size: clamp(0.75rem, 3vw, 0.9rem);
+        padding: 0.4em;
+    }
+
+    .spinner-border {
+        width: 1.5rem;
+        height: 1.5rem;
+    }
+}

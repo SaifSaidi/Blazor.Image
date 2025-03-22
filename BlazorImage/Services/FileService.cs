@@ -49,7 +49,7 @@ internal class FileService : IFileService
     public bool FileExistsInRootPath(string fileName)
     {
         var fullPath = GetRootPath(fileName);
-        return File.Exists(fullPath);
+         return File.Exists(fullPath);
     }
 
     public void CreateDirectoryForFile(string fileName)
@@ -61,6 +61,9 @@ internal class FileService : IFileService
         if (string.IsNullOrWhiteSpace(directory))
             return;
 
+        if (Directory.Exists(directory))
+            return;
+            
         Directory.CreateDirectory(directory); // Creates directory only if it doesn't exist
 
     }

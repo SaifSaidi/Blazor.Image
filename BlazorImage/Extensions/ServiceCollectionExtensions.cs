@@ -3,6 +3,9 @@ using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using BlazorImage.Models;
+using Microsoft.CodeAnalysis;
+using Microsoft.AspNetCore.Hosting;
+using BlazorImage.Models.Interfaces;
 
 namespace BlazorImage.Extensions
 {
@@ -31,33 +34,45 @@ namespace BlazorImage.Extensions
     {
 
         public static IServiceCollection AddBlazorImage(
-        this IServiceCollection services,
-        Action<BlazorImageConfig>? configureOptions = default!)
+            this IServiceCollection services,
+            Action<BlazorImageConfig>? configureOptions = default!)
         {
             // Register your services here
 
-             ArgumentNullException.ThrowIfNull(services);
-            // Register required services
-            services.AddMemoryCache();
-            services.TryAddSingleton<IFileService, FileService>();
-            services.TryAddScoped<ICacheService, CacheService>();
-            //services.TryAddScoped<IImageElementService, ImageElementService>();
-            //services.TryAddScoped<IImageProcessingService, ImageProcessingService>();
-            //services.TryAddScoped<IImageOptimizationService, ImageOptimizationService>();
+            ArgumentNullException.ThrowIfNull(services);
 
-            //services.AddSingleton<DictionaryCacheDataService>();
-            services.AddSingleton<DictionaryCacheDataService2>();
-            services.AddSingleton<IHostedService, ImageOptimizationInitializer>();
             // Create and configure the options instance
             var config = new BlazorImageConfig();
             configureOptions?.Invoke(config);
 
             // Normalize directory path
             config.Dir = config.Dir.Trim('/');
-             
+
+            // Register required services
+            services.AddMemoryCache();
+
+            // Add LiteDB singleton
+            services.AddSingleton<ILiteDatabase>(sp =>
+            {
+                var env = sp.GetRequiredService<IWebHostEnvironment>();
+                var webRootPath = env.WebRootPath;
+                var _liteDbPath = Path.Combine(webRootPath, config.Dir, Constants.LiteDbName);
+   
+                var _liteDbConnectoinString = $"Filename={_liteDbPath};Connection=shared";
+                var _db = new LiteDatabase(_liteDbConnectoinString);
+               
+                return _db;
+            });
+            services.TryAddSingleton<IFileService, FileService>();
+            services.TryAddSingleton<ICacheService, CacheService>();
+            services.TryAddSingleton<IImageProcessingService, ImageProcessingService>();
+            services.TryAddSingleton<IImageElementService, ImageElementService>();
+            services.TryAddScoped<IBlazorImageService, BlazorImageService>();
+
+             services.AddSingleton<DictionaryCacheDataService>();
+
             // Register configuration as a singleton
             services.AddSingleton(config);
-             
 
             // Register configuration with IOptions<T>
             services.Configure<BlazorImageConfig>(options =>
@@ -67,7 +82,7 @@ namespace BlazorImage.Extensions
                 options.DefaultQuality = config.DefaultQuality;
             });
 
-
+            services.AddSingleton<IHostedService, ImageOptimizationInitializer>();
 
             return services;
         }
@@ -85,30 +100,17 @@ namespace BlazorImage.Extensions
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            using (var scope = _scopeFactory.CreateScope())
+            using var scope = _scopeFactory.CreateScope();
+            var fileService = scope.ServiceProvider.GetRequiredService<IFileService>();
+             var config = scope.ServiceProvider.GetRequiredService<IOptions<BlazorImageConfig>>().Value;
+
+            if (!string.IsNullOrWhiteSpace(config.Dir))
             {
-                var fileService = scope.ServiceProvider.GetRequiredService<IFileService>();
-                var cacheService = scope.ServiceProvider.GetRequiredService<ICacheService>();
-                var config = scope.ServiceProvider.GetRequiredService<IOptions<BlazorImageConfig>>().Value;
 
-                if (!string.IsNullOrWhiteSpace(config.Dir))
-                {
-
-                    fileService.EnsureDirectoriesExist(config.Dir.Trim('/'));
-                }
-
-                ImageInfo image = new("/asdasd/asdasd/asdimage 1", 100, 100, FileFormat.webp, 75, DateTime.Now);
-                ImageInfo image2 = new("image/asd/2", 100, 100, FileFormat.webp, 75, DateTime.Now);
-                ImageInfo image3 = new("imagasd/3/", 100, 100, FileFormat.webp, 75, DateTime.Now);
-
-                Console.WriteLine(await cacheService.SaveToCacheAsync("c1", image));
-                Console.WriteLine(await cacheService.SaveToCacheAsync("c2", image2));
-                Console.WriteLine(await cacheService.SaveToCacheAsync("c3", image3));
-
-                var cache=  await cacheService.GetFromCacheAsync("c1");
-                  Console.WriteLine("From Cache:" + cache);
+                fileService.EnsureDirectoriesExist(config.Dir.Trim('/'));
+                await Task.CompletedTask;
             }
-
+            
         }
 
         public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;

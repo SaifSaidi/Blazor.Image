@@ -3,8 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
 namespace BlazorImage.Extensions
-{
-     
+{   
     public static class EndpointsRouteBuilderExtensions
     {
         public static IEndpointRouteBuilder MapBlazorImage(this IEndpointRouteBuilder app, string route)
@@ -18,34 +17,36 @@ namespace BlazorImage.Extensions
             {
                 throw new ArgumentException("route is null or whitespace!");
             }
-            app.MapGet(route, async (HttpContext context, ICacheService cacheService) =>
+            var routeGroup = app.MapGroup(route);
+
+
+            routeGroup.MapGet("/", (HttpContext context, ICacheService cacheService) =>
             {
-
-
-                await context.Response.WriteAsync(cacheService.ReadData(route));
+              return  TypedResults.Content(cacheService.ReadData(route), "text/html; charset=utf-8"); 
             });
 
-            app.MapGet($"{route}/delete", async (HttpContext context, ICacheService cacheService) =>
+            routeGroup.MapGet("/delete", async (HttpContext context, ICacheService cacheService) =>
             {
 
                 var cache = context.Request.Query["cache"].ToString();
                 await cacheService.DeleteFromCacheAsync(cache);
-                context.Response.Redirect(route);
+                    
+                context.Response.Redirect(route); 
             });
 
-            app.MapGet($"{route}/reset-all", async (HttpContext context, ICacheService cacheService) =>
+            routeGroup.MapGet("/reset-all", async (HttpContext context, ICacheService cacheService) =>
             {
 
                 await cacheService.ResetAllFromCacheAsync();
                 context.Response.Redirect(route);
             });
-            app.MapGet($"{route}/hard-reset-all", (HttpContext context, ICacheService cacheService) =>
+            routeGroup.MapGet("hard-reset-all", (HttpContext context, ICacheService cacheService) =>
             {
 
                 cacheService.HardResetAllFromCache();
                 context.Response.Redirect(route);
             });
-            app.MapGet($"{route}/refresh-all", (HttpContext context, ICacheService cacheService, DictionaryCacheDataService2 dictionaryCacheData) =>
+            routeGroup.MapGet("/refresh-all", (HttpContext context, ICacheService cacheService, DictionaryCacheDataService dictionaryCacheData) =>
             {
                 dictionaryCacheData.ClearData();
                 context.Response.Redirect(route);

@@ -5,14 +5,11 @@ internal interface ICacheService
     ValueTask<ImageInfo?> GetFromCacheAsync(string cacheKey);
 
     ValueTask<ImageInfo?> SaveToCacheAsync(string cacheKey, ImageInfo imageInfo);
-
-    void CompactMemoryCache();
+     
      void DeleteAllImageInfoFromDatabase();
-     Task DeleteFromCacheAsync(string cacheKey);
-     void DeleteImageDirectoriesAndRecreated();
+     Task DeleteFromCacheAsync(string cacheKey); 
      void DeleteImageInfoFromDatabase(string cacheKey);
     void HardResetAllFromCache();
      string ReadData(string route);
-     Task ResetAllFromCacheAsync();
-     void ResetDatabaseAndDictionaryCache();
+     Task ResetAllFromCacheAsync(); 
 }

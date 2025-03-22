@@ -1,7 +1,194 @@
-﻿@page "/"
-
+﻿@page "/" 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
 
-Welcome to your new app.
+<div>
+    <!-- Header -->
+    <header class="bg-blue-600 text-white py-16">
+        <div class="container mx-auto px-4 text-center">
+            <div class="flex mx-auto justify-center items-center">
+                <img src="/icon.png" />
+                <h1 class="text-4xl md:text-6xl font-bold mb-4">Blazor.Image</h1>
+            </div>
+            <p class="text-xl md:text-2xl mb-8">Image optimization for Blazor Static and Interactive Server-Side Applications.</p>
+            <a href="/gallery" class="inline-flex items-center gap-2 bg-white text-blue-600 px-6 py-3 rounded-full font-medium hover:bg-gray-100 transition-colors">
+                Examples
+            </a>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-16">
+
+        <!-- Documentation Section -->
+        <section>
+
+            <div class="bg-white rounded-lg shadow-md overflow-hidden p-6">
+                <h3 class="text-xl font-bold mb-4">Image Component Usage</h3>
+                <p class="mt-4 text-gray-600">
+                    The Image component handles optimization, lazy loading, and responsive sizing automatically.
+                    Adjust the props as needed for your specific use case.
+                </p>
+
+
+                <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto"><code>
+&lt;Image 
+    &lt;!-- [required] The local source URL of the image (e.g., /path/to/image) --&gt;
+    Src="/path/to/image.jpg" 
+
+    &lt;!-- [required] The alt text for the image (e.g., 'A beautiful scenery') --&gt;
+    Alt="Description of the image"
+
+    &lt;!-- The title of the image, displayed as a tooltip (e.g., 'Sunset View') --&gt;
+    Title="Title of the image" 
+
+    &lt;!-- The image format (e.g., webp, avif, jpeg, png, svg). default FileFormat.webp --&gt;
+    Format="FileFormat.webp"
+
+    &lt;!-- The image quality, between 5-100, where 100 is highest quality. default 75 --&gt;
+    Quality="75" 
+
+    &lt;!-- Boolean value for lazy loading (e.g., 'true' to enable lazy loading). default true --&gt;
+    LazyLoading="true" 
+
+    &lt;!-- The sizes attribute for responsive image sources. default "100vw". --&gt;
+    Size="100vw"
+
+    &lt;!-- CSS class for the image wrapper element (e.g., 'img-container') --&gt;
+    WrapperClass="wrapper-class" 
+
+    &lt;!-- Inline style for the wrapper element (e.g., 'width: 100%') --&gt;
+    WrapperStyle="width: 100%" 
+
+    &lt;!-- Additional CSS class for the image element (e.g., 'rounded-corners') --&gt;
+    CssClass="custom-class" 
+
+    &lt;!-- Inline style for the image element (e.g., 'max-width: 100%') --&gt;
+    Style="max-width: 100%" 
+
+    &lt;!-- The caption text to display below the image (e.g., 'A beautiful sunset') --&gt;
+    Caption="Image caption" 
+
+    &lt;!-- CSS class for the caption element (e.g., 'caption-text') --&gt;
+    CaptionClass="caption-class" 
+
+    &lt;!-- Boolean value to enable developer mode (e.g., 'true' to show debugging info) --&gt;
+    EnableDeveloperMode="false" 
+
+    &lt;!-- Boolean value to support LD+JSON structured data (e.g., 'true' to include JSON metadata) --&gt;
+    SupportLdJSON="false" 
+
+    &lt;!-- Boolean value to support preload links for the image (e.g., 'true' to preload image) --&gt;
+    SupportPreload="false" 
+
+/&gt;
+</code></pre>
+
+                <pre class="bg-gray-100 mt-4 p-4 rounded-lg overflow-x-auto">
+<code># To support (LD+JSON, Preloads) add image(s) src to SectionOutlet inside HeadContent
+&lt;HeadContent&gt;
+    &lt;SectionOutlet SectionName="/path/to/image" /&gt; 
+    &lt;SectionOutlet SectionName="/path/to/image .." /&gt; 
+    &lt;SectionOutlet SectionName="/path/to/image .." /&gt; 
+&lt;/HeadContent&gt;
+</code>
+</pre>
+
+
+            </div>
+        </section>
+
+        <!-- Image Attributes Reference -->
+        <div class="bg-white mt-4 4rounded-lg shadow-md overflow-hidden border border-gray-200">
+            <div class="p-6">
+                <h3 class="text-xl font-bold mb-2">Image Attributes Reference</h3>
+                <p class="text-gray-600 mb-6">
+                    Important HTML attributes for optimized images
+                </p>
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Attribute</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Example</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">src</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">The image URL</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><code>src="image.jpg"</code></td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">alt</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Descriptive text for accessibility</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><code>alt="Mountain landscape"</code></td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">width</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Intrinsic width in pixels</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><code>width="800"</code></td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">height</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Intrinsic height in pixels</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><code>height="600"</code></td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">loading</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Loading strategy (lazy or eager)</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><code>loading="lazy"</code></td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">decoding</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Image decoding hint</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><code>decoding="async"</code></td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">srcset</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Set of image sources for different widths</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><code>srcset="small.jpg 480w, large.jpg 1600w"</code></td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">sizes</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Media conditions for image sizes</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><code>sizes="(max-width: 600px) 100vw, 50vw"</code></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <div class="flex items-start">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-yellow-500 mt-0.5 mr-3"><circle cx="12" cy="12" r="10" /><path d="M12 16v-4" /><path d="M12 8h.01" /></svg>
+                        <div>
+                            <h4 class="text-sm font-medium text-yellow-800">Best Practices</h4>
+                            <ul class="mt-2 text-sm text-yellow-700 list-disc list-inside space-y-1">
+                                <li>Always include width and height attributes to prevent layout shifts</li>
+                                <li>Use lazy loading for images below the fold</li>
+                                <li>Provide descriptive alt text for accessibility</li>
+                                <li>Use responsive images with srcset and sizes for better performance</li>
+                                <li>Consider using the picture element for art direction</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+ 
+    </main>
+
+    <footer class="bg-gray-200 py-8 mt-20">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-gray-600">© 2025 Blazor.Image Optimization.</p>
+        </div>
+    </footer>
+</div>
+
+
+
+
+
+
+

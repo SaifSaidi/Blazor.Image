@@ -1,0 +1,194 @@
+﻿@page "/gallery"  
+ <div>
+    <!-- Header -->
+    <header class="bg-blue-600 text-white py-16">
+        <div class="container mx-auto px-4 text-center">
+            <div class="flex mx-auto justify-center items-center">
+                <img src="/icon.png" />
+                <h1 class="text-4xl md:text-6xl font-bold mb-4">Blazor.Image</h1>
+            </div>
+            <p class="text-xl md:text-2xl mb-8">Image optimization for Blazor Static and Interactive Server-Side Applications.</p>
+            <a href="/" class="inline-flex items-center gap-2 bg-white text-blue-600 px-6 py-3 rounded-full font-medium hover:bg-gray-100 transition-colors">
+                Home
+            </a>
+            <a href="/blazor/images/" class="inline-flex items-center gap-2 bg-white text-blue-600 px-6 py-3 rounded-full font-medium hover:bg-gray-100 transition-colors">
+                Cached
+            </a>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-16">
+
+
+        <!-- Image Loading Strategies Section -->
+        <section id="features" class="mt-20">
+            <h2 class="text-3xl font-bold mb-8 text-center">Image Loading Strategies</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 h-full mb-12">
+                <!-- Priority Loading -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2">Priority Loading</h3>
+                        <p class="text-gray-600 mb-4">
+                            Use for above-the-fold images that are the LCP (Largest Contentful Paint) element
+                        </p>
+                    </div>
+                    <div class="px-6 pb-6">
+                        <Image Src="/images/mountain.jpg"
+                        Alt="Priority loaded image of a mountain landscape"
+                        LazyLoading="false"
+                        Width="400"
+                        Quality="80"
+                        Height="400"
+                        Sizes="50vw"
+                        Style="width:100%; height:100%"
+                        CssClass="w-full h-full"
+                        Caption="Priority loaded image (eager loading)"
+                        EnableDeveloperMode="true"
+                        Cached="false"
+                        />
+                    </div>
+                </div>
+
+                <!-- Lazy Loading -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2">Lazy Loading</h3>
+                        <p class="text-gray-600 mb-4">
+                            Use for below-the-fold images to improve initial page load performance
+                        </p>
+                    </div>
+                    <div class="px-6 pb-6">
+                        <Image Src="/images/mountain.jpg"
+                        Alt="Lazy loaded image of a mountain landscape"
+                        LazyLoading="true"
+                        Width="400"
+                        Height="400"
+                               Cached="false"
+                        CssClass="w-full h-auto object-cover"
+                        Caption="Lazy loaded image"
+                               EnableDeveloperMode="true" />
+                    </div>
+                </div>
+
+                <!-- Lazy Loading -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2">Lazy Loading and LD+JSON, Preloads</h3>
+                        <p class="text-gray-600 mb-4">
+                            Support (LD+JSON, Preloads)
+                        </p>
+                    </div>
+                    <div class="px-6 pb-6">
+                        <Image Src="/images/mountain.jpg"
+                        Alt="Lazy loaded image of a mountain landscape"
+                        LazyLoading="true"
+                        SupportPreload="true"
+                        SupportLDJson="true"
+                        Width="400"
+                        Height="400" y
+                        CssClass="w-full h-auto object-cover"
+                        Caption="Lazy loaded image (LD+JSON, Preloads)"
+                               EnableDeveloperMode="true" />
+                    </div>
+                </div>
+            </div>
+
+
+
+            <!-- Art Direction -->
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="p-6">
+                    <h3 class="text-xl font-bold mb-2">Art Direction</h3>
+                    <p class="text-gray-600">
+                        Use different images for different screen sizes
+                    </p>
+                </div>
+                <div class="px-6 pb-6">
+                    <Image Src="/images/horse.jpg"
+                    Alt="Art direction example of a beach scene"
+                    LazyLoading="true"
+                    Sizes="100vw"
+                    CssClass="w-full h-auto"
+                    Caption="Art direction example (changes based on screen size)"
+                    />
+                </div>
+            </div> 
+        </section>
+
+        <!-- Image Gallery Section -->
+        <section class="mb-20">
+            <h2 class="font-bold mb-8 text-center ">Image Gallery</h2>
+
+            <div class="image-grid">
+                <Image Src="/images/horse.jpg"
+                Alt="Gallery image horse"
+                LazyLoading="true"
+                Width="160"
+                Height="160"
+                Quality="50"
+                Format="Extensions.FileFormat.avif"
+                CssClass="rounded-lg w-full h-auto object-cover"
+                Caption="Horse"
+                />
+
+                <Image Src="/images/lion.jpg"
+                Alt="Gallery image lion"
+                LazyLoading="true"
+                Width="160"
+                Height="160"
+                CssClass="rounded-lg w-full h-auto object-cover"  
+                EnableDeveloperMode="false" />
+
+ 
+                <Image Src="/images/black-cat.jpg"
+                       Alt="Gallery image Black Cat" 
+                EnableInteractiveState="true"
+                LazyLoading="false"
+                Width="160"
+                Height="160"
+                CssClass="rounded-lg w-full h-auto object-cover"
+                Caption="Black Cat"
+                />
+
+
+                <Image Src="/images/mountain.jpg"
+                Alt="Gallery image mountain"
+                LazyLoading="true"
+                Width="160"
+                Height="160"
+                CssClass="rounded-lg w-full h-auto object-cover"
+                Caption="Mountain"
+                />
+
+                <Image Src="/images/person.png"
+                Alt="Gallery image person"
+                LazyLoading="true"
+                Width="160"
+                Height="160"
+                CssClass="rounded-lg w-full h-auto object-cover"
+                Caption="Person"
+                />
+
+                <Image Src="/images/photo.jpeg"
+                Alt="Gallery image photo"
+                Width="1200"
+                Height="400"
+                CssClass="rounded-lg w-full h-auto object-cover"
+                Caption="Photo"
+                CaptionClass="text-center" 
+                Format="Extensions.FileFormat.webp"
+                />
+
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-200 py-8 mt-20">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-gray-600">© 2025 Blazor.Image.</p>
+        </div>
+    </footer>
+</div>
+ 

@@ -1,7 +1,9 @@
 ﻿using BlazorImage.Data;
 using BlazorImage.Extensions;
 using BlazorImage.Models;
+using BlazorImage.Models.Interfaces;
 using BlazorImage.Services;
+using LiteDB;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
@@ -17,16 +19,19 @@ namespace BlazorImage.UnitTests
         private readonly Mock<ILogger<CacheService>> _mockLogger;
         private readonly Mock<IOptions<BlazorImageConfig>> _mockOptions;
         private readonly Mock<IWebHostEnvironment> _mockWebHostEnvironment;
-        private readonly Mock<DictionaryCacheDataService2> _mockDictionaryCacheData;
+        private readonly Mock<DictionaryCacheDataService> _mockDictionaryCacheData;
         private readonly CacheService _cacheService;
+        private readonly Mock<ILiteDatabase> _db;
+
 
         public CacheServiceTests()
         {
             _mockMemoryCache = new Mock<IMemoryCache>();
             _mockLogger = new Mock<ILogger<CacheService>>();
             _mockOptions = new Mock<IOptions<BlazorImageConfig>>();
+          _db = new Mock<ILiteDatabase>();
             _mockWebHostEnvironment = new Mock<IWebHostEnvironment>();
-            _mockDictionaryCacheData = new Mock<DictionaryCacheDataService2>();
+            _mockDictionaryCacheData = new Mock<DictionaryCacheDataService>();
 
             // Setup mock options
             _mockOptions.Setup(o => o.Value).Returns(new BlazorImageConfig { Dir = "testDir" });
@@ -40,7 +45,8 @@ namespace BlazorImage.UnitTests
                 _mockOptions.Object,
                 _mockLogger.Object,
                 _mockWebHostEnvironment.Object,
-                _mockDictionaryCacheData.Object
+                _mockDictionaryCacheData.Object,
+                _db.Object
             );
         }
 
@@ -115,31 +121,6 @@ namespace BlazorImage.UnitTests
             _mockMemoryCache.Verify();
         }
  
-
-        [Fact]
-        public void ResetDatabaseAndDictionaryCache_DeletesAndRecreatesDatabase()
-        {
-            // Arrange
-            var liteDbPath = Path.Combine("wwwroot", "testDir", Constants.LiteDbName);
-
-            // Act
-            _cacheService.ResetDatabaseAndDictionaryCache();
-
-            // Assert
-            Assert.False(File.Exists(liteDbPath)); // Ensure the file is deleted
-        }
-
-        [Fact]
-        public void DeleteImageDirectoriesAndRecreated_DeletesAndRecreatesDirectories()
-        {
-            // Arrange
-            var directoryPath = Path.Combine("wwwroot", "testDir");
-
-            // Act
-            _cacheService.DeleteImageDirectoriesAndRecreated();
-
-            // Assert
-            Assert.True(Directory.Exists(directoryPath)); // Ensure the directory is recreated
-        }
+ 
     }
 }

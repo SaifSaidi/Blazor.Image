@@ -10,9 +10,9 @@
     using Microsoft.Extensions.Logging;
     using Moq;
     using Xunit;
-
     public class FileServiceTests
     {
+
         private readonly Mock<IWebHostEnvironment> _mockEnv;
         private readonly Mock<ILogger<FileService>> _mockLogger;
         private readonly FileService _fileService;

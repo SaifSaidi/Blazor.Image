@@ -10,24 +10,7 @@
 //using Moq;
 
 //namespace BlazorImage.Benchmarks
-//{
-
-//    /* 
-
-
-//        | Method                           | Mean        | Error       | StdDev    |
-//        |--------------------------------- |------------:|------------:|----------:|
-    
-//        | Benchmark_SanitizeFileName       |    140.4 ns |    107.7 ns |   5.91 ns |
-//        | Benchmark_GetLiteDbFile           | 45.81 ns | 6.495 ns | 0.356 ns |
-//        | Benchmark_GetRootPath            |     29.85 ns |     2.417 ns |   0.132 ns | (optimized)
-//        | Benchmark_EnsureDirectoriesExist | 27,056.09 ns | 5,519.551 ns | 302.545 ns |  (optimized)
-//        | Benchmark_GetFileSizeInKb        | 15,57 ns |  8,306.4 ns | 455.30 ns | (optimized)
-//        | Benchmark_CreateDirectoryForFile | 15,200.6 ns | 12,761.5 ns | 699.50 ns | (optimized)
-//        | Benchmark_FileExistsInRootPath | 14.88 us | 2.462 us | 0.135 us |(optimized)
-        
-
-        
+//{ 
      
 //     */
 
@@ -56,7 +39,7 @@
 
 //            var mockFileSystem = new MockFileSystem();
 //            mockFileSystem.AddFile("testfile.txt", new MockFileData("This is a test file."));
-             
+
 
 //            var fileService = new FileService(mockEnv.Object, mockLogger.Object);
 

@@ -23,7 +23,6 @@
         /// </summary>
         png,
 
-
         /// <summary>
         /// AVIF format, a modern image format that offers high compression efficiency and quality, supporting both lossy and lossless compression.
         ///  A good alternative to WebP, offering potentially even better compression, and supports features like animation and HDR.

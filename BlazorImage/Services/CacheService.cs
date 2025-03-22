@@ -5,19 +5,23 @@ using System.Text;
 using Microsoft.Extensions.Logging;
 using BlazorImage.Models;
 using Microsoft.AspNetCore.Hosting;
+
 using System.Runtime.CompilerServices;
+
+
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
 
 namespace BlazorImage.Services;
- 
 
 internal class CacheService : ICacheService
 {
+
     private readonly IMemoryCache _cache;
     private readonly ILogger<CacheService> _logger; 
     private readonly SemaphoreSlim _dbSemaphore = new(1, 1);
-    private readonly DictionaryCacheDataService2 _dictionaryCacheData;  
+    private readonly DictionaryCacheDataService _dictionaryCacheData;
 
+    private readonly ILiteDatabase _db;
     private static readonly TimeSpan AbsoluteExpirationRelativeToNowValue
         = TimeSpan.FromHours(1);
 
@@ -28,27 +32,25 @@ internal class CacheService : ICacheService
     private const string ErrorSavingMessage = "Error saving to cache or database";
     private const string ErrorRemoveMessage = "Error removing from cache or database";
      
-    private readonly string _Dir;
-    private readonly string _liteDbPath;
-    private readonly string _liteDbConnectoinString;
-
-
-
+    private readonly string _Dir; 
+    private readonly string _DirName; 
+     
     public CacheService(
         IMemoryCache cache,
         IOptions<BlazorImageConfig> options,
         ILogger<CacheService> logger,
         IWebHostEnvironment env,
-        DictionaryCacheDataService2 dictionaryCacheData)
+        DictionaryCacheDataService dictionaryCacheData,
+        ILiteDatabase db)
     {
         _cache = cache;
-         _logger = logger;
-        _liteDbPath = Path.Combine(env.WebRootPath, options.Value.Dir, Constants.LiteDbName);
-        _Dir = Path.Combine(env.WebRootPath, options.Value.Dir);
-  
-
-        _liteDbConnectoinString = $"Filename={_liteDbPath};Connection=shared";
+        _logger = logger; 
         _dictionaryCacheData = dictionaryCacheData;
+        _db = db;
+        
+        string dirName = options.Value.Dir.TrimStart('/');
+         _DirName = dirName; 
+         _Dir = Path.Combine(env.WebRootPath,dirName); 
     }
 
     private static MemoryCacheEntryOptions GetCacheEntryOptions()
@@ -57,7 +59,7 @@ internal class CacheService : ICacheService
         {
             AbsoluteExpirationRelativeToNow = AbsoluteExpirationRelativeToNowValue,
             SlidingExpiration = SlidingExpirationValue,
-            Size = 1 // Each cache entry occupies 1 unit of the cache's size limit
+            Size = 1  
         };
     }
     public async ValueTask<ImageInfo?> GetFromCacheAsync(string cacheKey)
@@ -95,10 +97,9 @@ internal class CacheService : ICacheService
 
 
     private ImageInfo? GetImageInfoFromDatabase(string cacheKey)
-    { 
+    {  
 
-        using var db = new LiteDatabase(_liteDbConnectoinString);
-        var collection = db.GetCollection<ImageInfo>(Constants.LiteDbCollection);
+        var collection = _db.GetCollection<ImageInfo>(Constants.LiteDbCollection); 
         var cachedFromDb = collection.FindById(cacheKey);
          
         return cachedFromDb;
@@ -147,8 +148,8 @@ internal class CacheService : ICacheService
     {
 
         imageInfo.Key = cacheKey;
-        using var db = new LiteDatabase(_liteDbConnectoinString);
-        var collection = db.GetCollection<ImageInfo>(Constants.LiteDbCollection); 
+        var collection = _db.GetCollection<ImageInfo>(Constants.LiteDbCollection);
+
         collection.EnsureIndex(x => x.Key, true); 
      
         collection.Upsert(imageInfo);
@@ -158,9 +159,9 @@ internal class CacheService : ICacheService
     }
 
     public string ReadData(string route)
-    { 
-        using var db = new LiteDatabase(_liteDbConnectoinString);
-        var collection = db.GetCollection<ImageInfo>(Constants.LiteDbCollection);
+    {
+
+        var collection = _db.GetCollection<ImageInfo>(Constants.LiteDbCollection);
 
         var imageInfos = collection.FindAll();
         StringBuilder sb = BlazorImageHtml(route, imageInfos);
@@ -195,10 +196,9 @@ internal class CacheService : ICacheService
     }
 
     public void DeleteImageInfoFromDatabase(string cacheKey)
-    { 
+    {
+        var collection = _db.GetCollection<ImageInfo>(Constants.LiteDbCollection);
 
-        using var db = new LiteDatabase(_liteDbConnectoinString);
-        var collection = db.GetCollection<ImageInfo>(Constants.LiteDbCollection);
         collection.Delete(cacheKey);
         _logger.LogDebug("Removed key: {CacheKey} from database.", cacheKey); // Added logging for DB removal
      }
@@ -209,7 +209,7 @@ internal class CacheService : ICacheService
         try
         {
             CompactMemoryCache();
-            DeleteImageDirectoriesAndRecreated(); 
+            DeleteImageDirectoriesAndRecreated();
             ResetDatabaseAndDictionaryCache();
             _dictionaryCacheData.ClearData();
         }
@@ -219,30 +219,18 @@ internal class CacheService : ICacheService
         }
     }
 
-    public void ResetDatabaseAndDictionaryCache()
+    private void ResetDatabaseAndDictionaryCache()
     {
-        
-        if (string.IsNullOrEmpty(_liteDbPath))
-        {
-            _logger.LogWarning("LiteDB path is empty, cannot delete and recreate database.");
-            return;
-        }
 
-        // Delete the existing LiteDB file
-        if (File.Exists(_liteDbPath))
-        {
-            File.Delete(_liteDbPath);
-            _logger.LogInformation("Deleted existing LiteDB file at path: {LiteDbPath}", _liteDbPath);
-        }
-
+        var collection = _db.GetCollection<ImageInfo>(Constants.LiteDbCollection);
+ 
         // Recreate the LiteDB file
-
-        using var db = new LiteDatabase(_liteDbConnectoinString);
-        db.GetCollection<ImageInfo>(Constants.LiteDbCollection);
-        _logger.LogInformation("Recreated LiteDB file and collection at path: {LiteDbPath}", _liteDbPath);
+        collection.DeleteAll();
+        collection.EnsureIndex(x => x.Key, true);
+        _logger.LogInformation("Recreated LiteDB file and collection at path: {LiteDbPath}", collection.Name);
     }
 
-    public void DeleteImageDirectoriesAndRecreated()
+    private void DeleteImageDirectoriesAndRecreated()
     {
         var directoryPath = _Dir;
         if (Directory.Exists(directoryPath))
@@ -263,7 +251,7 @@ internal class CacheService : ICacheService
          _logger.LogDebug("Ensured directories exist at path: {DirectoryPath}", directoryPath); // Added logging for directory re-creation
     }
 
-    public void CompactMemoryCache()
+    private void CompactMemoryCache()
     {
         if (_cache is MemoryCache memoryCache)
         {
@@ -286,8 +274,7 @@ internal class CacheService : ICacheService
 
             await _dbSemaphore.WaitAsync();
             ResetDatabaseAndDictionaryCache();
-            DeleteAllImageInfoFromDatabase(); // Call new method to delete all from DB
-        }
+         }
         finally
         {
             _dbSemaphore.Release();
@@ -297,12 +284,13 @@ internal class CacheService : ICacheService
 
     public void DeleteAllImageInfoFromDatabase()
     {
-        
-        if (!string.IsNullOrEmpty(_liteDbPath)) // Proceed only if path is valid
+        var collection = _db.GetCollection<ImageInfo>(Constants.LiteDbCollection);
+
+
+        if (collection != null) // Proceed only if path is valid
         {
-            using var db = new LiteDatabase(_liteDbConnectoinString);
-            var collection = db.GetCollection<ImageInfo>(Constants.LiteDbCollection);
             collection.DeleteAll();
+           
             _logger.LogDebug("All ImageInfo deleted from database."); // Added logging for DB DeleteAll
         }
         else
@@ -459,12 +447,13 @@ internal class CacheService : ICacheService
         int i = 1;
         foreach (var imageInfo in imageInfos)
         {
+
             var formatExt = imageInfo.Format.GetValueOrDefault().ToFileExtension();
-            var imagPath = $"{_Dir}/{imageInfo.SanitizedName}/{formatExt}/{imageInfo.SanitizedName}-480w-q{imageInfo.Quality}.{formatExt}";
+            var imagPath = $"/{_DirName}/{imageInfo.SanitizedName}/{formatExt}/{imageInfo.SanitizedName}-480w-q{imageInfo.Quality}.{formatExt}";
 
             sb.AppendLine($"                        <tr class='{(i % 2 == 0 ? "bg-gray-50" : "bg-white")} hover:bg-gray-100 transition-colors'>");
             sb.AppendLine($"                            <td class='px-6 py-4 whitespace-nowrap text-sm font-medium'><a href='{route}/delete?cache={imageInfo.Key}' class='text-red-600 hover:text-red-900 transition-colors'><i class='fa fa-trash-alt mr-1'></i> Remove</a></td>");
-            sb.AppendLine($"                            <td class='px-6 py-4 whitespace-nowrap'><img class='object-cover rounded-md w-12 h-12' src='/{imagPath}' alt='Image preview' /></td>");
+            sb.AppendLine($"                            <td class='px-6 py-4 whitespace-nowrap'><img class='object-cover rounded-md w-12 h-12' src='{imagPath}' alt='Image preview' /></td>");
             sb.AppendLine($"                            <td class='px-6 py-4 whitespace-nowrap text-gray-700'>{imageInfo.SanitizedName}</td>");
             sb.AppendLine($"                            <td class='px-6 py-4 whitespace-nowrap text-gray-700'>{imageInfo.Format.GetValueOrDefault().ToMimeType()}</td>");
             sb.AppendLine($"                            <td class='px-6 py-4 whitespace-nowrap text-gray-700'>{imageInfo.Quality}</td>");

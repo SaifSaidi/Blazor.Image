@@ -2,12 +2,11 @@ using BlazorImage.Demo.Components;
 using BlazorImage.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
+  
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
-
-
 
 builder.Services.AddBlazorImage();
 
@@ -21,13 +20,16 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+ 
 app.UseHttpsRedirection();
-
 
 app.UseAntiforgery();
 app.MapBlazorImage("/blazor/images");
+
 app.MapStaticAssets();
+
 app.MapRazorComponents<App>()
-    .AddInteractiveServerRenderMode();
+    .AddInteractiveServerRenderMode(); 
 
 app.Run();
+ 

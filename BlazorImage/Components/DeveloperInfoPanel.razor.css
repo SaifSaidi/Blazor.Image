@@ -1,0 +1,234 @@
+/* Developer Info Popup Styles - Corrected and Improved */
+.developer-info-container {
+    position: absolute;
+    top: 10px;
+    display: inline-block;
+    right: 10px;
+}
+
+.info-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    padding: 8px 12px;
+    background-color: rgba(52, 58, 64, 1);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    transition: background-color 0.2s ease-in-out;
+}
+
+    .info-toggle:hover,
+    .info-toggle:focus {
+        background-color: rgba(66, 73, 80, 1);
+        outline: none;
+    }
+
+.info-icon {
+    font-size: 1em;
+    line-height: 1;
+}
+
+.info-text {
+    font-weight: 500;
+}
+
+/* Popup Overlay (Background) */
+.developer-info-popup-overlay {
+    display: none;
+    position: fixed; /* Cover the entire viewport */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black overlay */
+    z-index: 10000; /* High z-index to be on top */
+    opacity: 0;
+    transition: opacity 0.3s ease-out, visibility 0.3s ease-out; /* Fade transition */
+    pointer-events: none; /* Allow clicks to pass through when hidden */
+}
+
+    .developer-info-popup-overlay.show {
+        opacity: 1; /* Fade in to be visible */
+        display: block;
+        pointer-events: auto; /* Re-enable pointer events when visible */
+    }
+
+
+/* Popup Container */
+.developer-info-popup {
+    position: fixed; /* Fixed position in viewport */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* Center precisely */
+    background-color: rgba(33, 37, 41, 1);
+    color: #e0e0e0;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-family: 'Roboto', sans-serif;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5); /* Stronger shadow for depth */
+    z-index: 10001; /* Higher z-index than overlay */
+    max-height: 90%; /* Max height to prevent viewport overflow */
+    overflow-y: auto; /* Enable scrolling within popup */
+    width: clamp(300px, 80%, 600px); /* Responsive width */
+    opacity: 0;
+    display: none;
+    transition: opacity 0.3s ease-out, visibility 0.3s ease-out, transform 0.3s ease-out; /* Fade and scale transition */
+    transform: translate(-50%, -50%) scale(0.95); /* Slightly scaled down initially */
+}
+
+    .developer-info-popup.show {
+        opacity: 1; /* Fade in to visible */
+        display: block;
+        transform: translate(-50%, -50%) scale(1); /* Scale up to normal size */
+    }
+
+
+.popup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+    .popup-header .info-header { /* Target info-header within popup-header */
+        margin-bottom: 0;
+    }
+
+.close-button {
+    background: none;
+    color: #fff;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.2s ease-in-out;
+    padding: 0;
+    line-height: 1;
+}
+
+    .close-button:hover,
+    .close-button:focus {
+        opacity: 1;
+        outline: none;
+    }
+
+
+.developer-info-popup .developer-info-details { /* Target details inside popup */
+    max-height: none; /* Allow details to expand within popup scroll */
+    overflow-y: visible; /* Disable details scroll, popup scrolls */
+    padding: 15px 20px;
+    border-radius: 0;
+    background-color: transparent; /* Transparent background within popup */
+    opacity: 1; /* Ensure details are visible */
+    visibility: visible; /* Ensure details are visible */
+    transition: none; /* No transitions for details inside popup */
+    display: block; /* Ensure block display */
+}
+
+
+/* Rest of the styles (developer-info-list, info-separator, info-value, etc.) remain the same */
+.developer-info-list {
+    list-style: none;
+    padding: 0.8rem;
+    margin: 0;
+}
+
+    .developer-info-list li {
+        line-height: 1.6;
+        margin-bottom: 0.4rem;
+    }
+
+.info-separator {
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.2);
+    margin: 0.8rem 0;
+    font-style:italic
+}
+
+.info-value {
+    color: #9eceff;
+    font-family: monospace;
+    word-break: break-all;
+}
+
+.recommended-size {
+    font-weight: 600;
+    color: #b2f5ff;
+}
+
+
+.size-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 0.8rem;
+    margin-top: 0.3rem;
+}
+
+.size-url {
+    font-family: monospace;
+    color: #a5d8ff;
+}
+
+.size-reduction {
+    color: #a7f3d0;
+    font-size: 0.75rem;
+}
+
+    .size-reduction small {
+        color: #c0c0c0;
+        font-size: 0.8em;
+        margin-left: 0.2em;
+    }
+
+.size-reduction-min {
+    color: #ff6666 !important;
+    font-size: 0.75rem;
+}
+
+
+.image-size-info {
+    margin: 0.6rem 0;
+    padding: 0.6rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.size-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.4rem;
+    color: #fff;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.size-label {
+    color: #b2ebf2;
+    font-weight: 600;
+}
+
+.attributes-list {
+    list-style: none;
+    padding-left: 0;
+    margin-top: 0.3rem;
+}
+
+    .attributes-list li {
+        margin-bottom: 0.2rem;
+        font-size: 0.8rem;
+    }
+
+.attribute-key {
+    font-weight: bold;
+    color: #ddd;
+}
+
+.attribute-value {
+    font-family: monospace;
+    color: #eee;
+}

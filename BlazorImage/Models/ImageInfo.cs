@@ -9,7 +9,7 @@
         DateTime? ProcessedTime)
     {
         [BsonId]
-        public string Key { get; set; }
+        public string Key { get; set; } = default!;
 
         public override string ToString()
         {
