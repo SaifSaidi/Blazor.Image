@@ -110,7 +110,7 @@
                 }
                 <li class="info-separator"></li>
 
-                @foreach (var width in Constants.ConfigSizes)
+                @foreach (var width in Options.Value.ConfigSizes)
                 {
            
                     var fileSrc = GetImageProccessOutputDir(ImageElementService.GenerateImageName(ImageComponent.Src, width, ImageComponent.Quality, ImageComponent.Format));

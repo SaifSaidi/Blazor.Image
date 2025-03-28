@@ -5,11 +5,13 @@
         int? Width,
         int? Height,
         FileFormat? Format,
-        int? Quality,
-        DateTime? ProcessedTime)
+        int? Quality 
+        )
     {
         [BsonId]
         public string Key { get; set; } = default!;
+
+        public DateTime? ProcessedTime { get; set; }
 
         public override string ToString()
         {

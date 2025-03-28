@@ -1,67 +1,53 @@
 ﻿@inject NavigationManager Navigation
-@inject IBlazorImageService ImageService
+@inject IBlazorImageService BlazorImageService
 @inject IImageElementService ImageElementService
-@inject IJSRuntime JSRuntime 
-@attribute [StreamRendering]
+@inject IJSRuntime JSRuntime
 
+@attribute [StreamRendering]
 
 @if (!string.IsNullOrEmpty(statusMessage))
 {
-    <div style="position:relative;height:auto">
-        <img src="@Src" class="@LoadingClass @CssClass" style="opacity:0.8; @Style" />
-        <div  class="loading-spinner">
+    <div class="image-loading-container" style="position:relative;height:auto">
+        <img src="@Src" class="@LoadingClass @CssClass" style="opacity:0.8; @Style" alt="@Alt" />
+        <div class="loading-spinner" role="status" aria-live="polite">
             @if (!statusMessage.Contains("100"))
             {
-                <div class="spinner-border" role="status">
-                    <span class="visually-hidden"></span>
-                </div>
-
-                @statusMessage
+                <div class="spinner-border" role="status" aria-hidden="true"></div>
+                <span>@statusMessage</span>
             }
             else
             {
-
-                <span>👍 Just Reload! </span>
+                <span>👍 Just Reload!</span>
             }
         </div>
     </div>
-
-
 }
 else
 {
-
     <figure style="@WrapperStyle" class="@WrapperClass" role="group">
-        <picture class="optimal-sizes">
-
-            @if (LazyLoading)
-            {
-                <source srcset="@_placeholder" data-srcset="@Source" sizes="@Sizes" type="@_mimeType" />
-            }
-            else
-            {
-                <source srcset="@Source"
+        <div class="figure-container" style="padding-top: @(AspectRatioPadding)%">
+            <picture>
+                <source srcset="@(LazyLoading ? _placeholder : Source)"
+                data-srcset="@(LazyLoading ? Source : "")"
                 sizes="@Sizes"
-                type="@_mimeType" />
-            }
+                type="@_mimeType" 
+                />
 
-            <img src="@_placeholder"
-            data-src="@_FeedbackSrc" 
-            alt="@Alt"
-            title="@Title"
-            width="@(Width?? _ImageInfo?.Width)"
-            height="@(Height ?? _ImageInfo?.Height)" 
-            class="@LoadingClass @CssClass" 
-            style="@Style"
-            loading="@LazyLoadingAttr"  
-            @ref="@_imageRef"
-            @attributes="AdditionalAttributes" />
-        </picture>
-
-
+                <img src="@_FallbackImageSrc"
+                alt="@Alt"
+                title="@Title"
+                width="@Width"
+                height="@Height"
+                class="@LoadingClass @CssClass"
+                style="@Style"
+                loading="@LazyLoadingAttr"
+                @ref="_imageRef"
+                @attributes="AdditionalAttributes" />
+            </picture>
+        </div>
         @if (!string.IsNullOrEmpty(Caption))
         {
-            <figcaption class="@CaptionClass">@Caption</figcaption>
+            <figcaption class="@(string.IsNullOrEmpty(CaptionClass) ? "default-caption" : CaptionClass)">@Caption</figcaption>
         }
 
         @if (EnableDeveloperMode)
@@ -70,13 +56,7 @@ else
                 <DeveloperInfoPanel />
             </CascadingValue>
         }
-
     </figure>
-
-    @* <SectionContent SectionName="@Src"> *@
-    @*     @_preloadLinks *@
-    @*     @StructuredData *@
-    @* </SectionContent> *@
 
     @if (!string.IsNullOrEmpty(_error))
     {
@@ -86,239 +66,133 @@ else
     }
 }
 
-
-
 @code {
     private string? _error;
     private string? statusMessage;
-
-    private string? _FeedbackSrc;
-     private string? _placeholder = "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==";
-    private ImageInfo? _ImageInfo;
+    private string? _FallbackImageSrc;
+    private string? _placeholder; 
     private string? Source;
     private string? _mimeType;
-    private ElementReference? _imageRef;
-    private static readonly string DefaultSizes = "100vw";  
+    private double AspectRatioPadding;
+    private ElementReference _imageRef;
 
     private string LazyLoadingAttr => LazyLoading ? "lazy" : "eager";
-    private string LoadingClass => LazyLoading ? "_blazor_lazy_load blazorlazyload placeholder " : "";
+    private string LoadingClass => LazyLoading ? "_blazor_lazy_load blazorlazyload" : "";
 
+    [Parameter] public int? Width { get; set; }
+    [Parameter] public int? Height { get; set; }
+    [Parameter] public bool? Fill { get; set; }
 
-    /// <summary>
-    /// The width of the image. If not set, the intrinsic width of the optimized image will be used.
-    /// </summary>
-    [Parameter] public int? Width { get; set; }  
-
-    /// <summary>
-    /// The height of the image. If not set, the intrinsic height of the optimized image will be used.
-    /// </summary>
-    [Parameter] public int? Height { get; set; }  
-
-    /// <summary>
-    /// Determines whether the image should enable interactive state.
-    /// </summary>
     [Parameter] public bool EnableInteractiveState { get; set; }
-    /// <summary>
-    /// The source URL of the image.
-    /// </summary>
     [Parameter, EditorRequired] public required string Src { get; set; }
-
-    /// <summary>
-    /// The alt text for the image.
-    /// </summary>
     [Parameter, EditorRequired] public required string Alt { get; set; }
-
-    /// <summary>
-    /// Determines whether the image should be lazy-loaded. Default is true.
-    /// </summary>
     [Parameter] public bool LazyLoading { get; set; } = true;
-
-    /// <summary>
-    /// The title of the image. Appears as a tooltip when hovering over the image.
-    /// </summary>
     [Parameter] public string? Title { get; set; }
-
-    /// <summary>
-    /// Additional CSS class(es) to apply to the image element.
-    /// </summary>
     [Parameter] public string? CssClass { get; set; }
-
-    /// <summary>
-    /// Additional CSS class(es) to apply to the wrapper <figure> element.
-    /// </summary>
     [Parameter] public string? WrapperClass { get; set; }
-
-    /// <summary>
-    /// Inline styles to apply to the image element.
-    /// </summary>
     [Parameter] public string? Style { get; set; }
-
-    /// <summary>
-    /// Inline styles to apply to the wrapper <figure> element.
-    /// </summary>
     [Parameter] public string? WrapperStyle { get; set; }
-
-    /// <summary>
-    /// The image quality. Used when optimizing the image.
-    /// </summary>
     [Parameter] public int? Quality { get; set; }
-
-    /// <summary>
-    /// The image format (e.g., webp, jpeg).
-    /// </summary>
     [Parameter] public FileFormat? Format { get; set; }
-
-    /// <summary>
-    /// The sizes attribute for responsive image sources. Default is "100vw".
-    /// </summary>
     [Parameter]
-    public string? Sizes { get; set; } = DefaultSizes;
-
-    /// <summary>
-    /// The CSS class to apply to the caption element.
-    /// </summary>
+    public string? Sizes { get; set; } = "(min-width: 1024px) 1024px, 100vw";
     [Parameter] public string? CaptionClass { get; set; }
-
-    /// <summary>
-    /// The caption text to display under the image.
-    /// </summary>
     [Parameter] public string? Caption { get; set; }
-
-    /// <summary>
-    /// Enable developer mode, which shows additional debugging information.
-    /// </summary>
     [Parameter] public bool EnableDeveloperMode { get; set; }
-
-
-    /// <summary>
-    /// Determines whether preload links for the image should be added to the page.
-    /// </summary>
-    // [Parameter] public bool SupportPreload { get; set; }
-
-    /// Determines whether to support the inclusion of LD+JSON structured data for the image.
-    /// </summary>
-    // [Parameter] public bool SupportLDJson { get; set; }
-
-    [Parameter(CaptureUnmatchedValues = true)] 
-    public Dictionary<string, object>? AdditionalAttributes { get; set; }
-
-
-    // private RenderFragment _preloadLinks => builder =>
-    // {
-    //     if (SupportPreload && _ImageInfo != null)
-    //     {
-    //         builder.OpenElement(0, "link");  
-    //         builder.AddMultipleAttributes(1, new Dictionary<string, object> {
-    //             { "rel", "preload" },
-    //             { "href", _FeedbackSrc ?? Src },
-    //             { "as", "image" },
-    //             { "type", _mimeType! },
-    //             { "imagesrcset", Source! },
-    //             { "imagesizes", Sizes! }
-    //             });
-    //         builder.CloseElement();
-    //     }
-    // };
-
-    // private RenderFragment StructuredData => builder =>
-    // {
-    //     if (SupportLDJson && _ImageInfo != null)
-    //     {
-    //         var url = Navigation.BaseUri.TrimEnd('/') + "/" + _FeedbackSrc;
-    //         var date = _ImageInfo.ProcessedTime?.ToString("yyyy-MM-ddTHH:mm:ssZ");
-
-    //         string json = $@"
-    // {{
-    // ""@context"": ""https:schema.org"",
-    // ""@type"": ""ImageObject"",
-    // ""contentUrl"": ""{url}"",
-    // ""thumbnailUrl"": ""{url}"",
-    // ""encodingFormat"": ""{_mimeType}"",
-    // ""name"": ""{_ImageInfo.SanitizedName}"",
-    // ""description"": ""{Alt}"",
-    // ""width"": {Width ?? _ImageInfo.Width},
-    // ""height"": {Height ?? _ImageInfo.Height},
-    // ""datePublished"": ""{date}"",
-    // ""uploadDate"": ""{date}"",
-    // ""mainEntityOfPage"": {{
-    //     ""@type"": ""WebPage"",
-    //     ""@id"": ""{Navigation.Uri}""
-    // }},
-    // ""associatedMedia"": {{
-    //     ""@type"": ""MediaObject"",
-    //     ""contentUrl"": ""{url}"",
-    //     ""encodingFormat"": ""{_mimeType}"",
-    //     ""width"": {Width ?? _ImageInfo.Width},
-    //     ""height"": {Height ?? _ImageInfo.Height}
-    // }},
-    // ""license"": ""https:creativecommons.org/licenses/by/4.0/""
-    // }}";
-
-    //         builder.AddMarkupContent(0, $"<script type=\"application/ld+json\">{json.Trim()}</script>");
-    //     }
-    // };
+    [Parameter(CaptureUnmatchedValues = true)] public Dictionary<string, object>? AdditionalAttributes { get; set; }
 
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadImagesAsync();
+        if (Fill == null && (Width == null || Height == null))
+        {
+            _error = "Either 'Fill' must be specified or both 'Width' and 'Height' must be provided.";
+            return;
+        }
+        await InitImageAsync();
     }
 
     protected override async Task OnParametersSetAsync()
     {
-        if (RendererInfo.IsInteractive && EnableInteractiveState) { 
-            await LoadImagesAsync();
+        if (RendererInfo.IsInteractive && EnableInteractiveState)
+        {
+            await InitImageAsync();
         }
-
-    } 
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender && RendererInfo.IsInteractive && LazyLoading && _imageRef != null)
-        { 
+        if (firstRender &&
+            RendererInfo.IsInteractive &&
+            LazyLoading &&
+            _imageRef.Context != null)
+        {
             await JSRuntime.InvokeVoidAsync("BlazorLazyLoad", _imageRef);
         }
     }
 
-    private async ValueTask LoadImagesAsync()
-    { 
-        
-        var imageInfoResult = await ImageService.GetImageInfoAsync(Src, Quality, Format);
+    private async Task InitImageAsync()
+    {
+        var result = await BlazorImageService.GetImageInfoAsync(Src, Quality, Format);
 
-
-
-        if (imageInfoResult?.IsSuccess ?? false)
+        if (result?.IsSuccess ?? false)
         {
-            _ImageInfo = imageInfoResult.Value;
+            var imageInfo = result.Value;
+            LoadImages(imageInfo);
 
-            var (source, fallback, placeholder) = ImageElementService.GetStaticPictureSourceWithMetadataInfo(
-                                   _ImageInfo!.SanitizedName, _ImageInfo!.Quality!.Value, _ImageInfo!.Format!.Value, Width);
+            double height = Height ?? imageInfo.Height ?? 1;
+            double width = Width ?? imageInfo.Width ?? 1;
+            AspectRatioPadding = (height / width) * 100; 
 
-            Source = source;
-            _FeedbackSrc = fallback;
-            _mimeType = _ImageInfo!.Format?.ToMimeType();
-            _placeholder =   LazyLoading? placeholder : _FeedbackSrc;
+ 
             statusMessage = "";
             _error = "";
         }
-        else if (!imageInfoResult?.IsSuccess ?? false)
+        else if (result != null)
         {
-            _error = imageInfoResult!.Error;
+            _error = result.Error;
         }
         else
         {
-            Channel<string>? channel = Channel.CreateUnbounded<string>();
-      
-            await ImageService.ProcessAndGetImageInfoAsync(Src, Quality, Format, channel.Writer);
-            
-                await foreach (var message in channel.Reader.ReadAllAsync())
-                {
-
-                    statusMessage = message;
-                    StateHasChanged();
-                }
-        } 
+            await ProcessImageWithProgressUpdates();
+        }
     }
 
-  
+    private async Task ProcessImageWithProgressUpdates()
+    {
+        var options = new BoundedChannelOptions(100)
+            {
+                FullMode = BoundedChannelFullMode.DropOldest
+            };
+
+        var channel = Channel.CreateBounded<string>(options);
+
+        await BlazorImageService.ProcessAndGetImageInfoAsync(Src, Quality, Format, channel.Writer);
+
+        await foreach (var message in channel.Reader.ReadAllAsync())
+        {
+            statusMessage = message;
+            StateHasChanged();
+        }
+    }
+
+    private void LoadImages(ImageInfo imageInfo)
+    {
+        if (imageInfo == null || !imageInfo.Quality.HasValue || !imageInfo.Format.HasValue)
+        {
+            _error = "Invalid image information";
+            return;
+        }
+
+        var (source, fallback, placeholder) = ImageElementService.GetStaticPictureSourceWithMetadataInfo(
+            imageInfo.SanitizedName,
+            imageInfo.Quality.Value,
+            imageInfo.Format.Value,
+            Width);
+
+        Source = source;
+        _FallbackImageSrc = fallback;
+        _mimeType = imageInfo.Format?.ToMimeType();
+        _placeholder = EnableInteractiveState ? source : placeholder;// (LazyLoading ? placeholder : _FallbackImageSrc);
+    }
 }

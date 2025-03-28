@@ -1,22 +1,37 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
-  <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <None Remove="Benchmarks\FileServiceBenchmarks.cs~RFc648112.TMP" />
-  </ItemGroup>
-
-
-  <ItemGroup>
-    <SupportedPlatform Include="browser" />
-  </ItemGroup>
+	<PropertyGroup>
+		<TargetFramework>net9.0</TargetFramework>
+		<AssemblyName>BlazorImage</AssemblyName>
+		<LangVersion>latest</LangVersion>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings> 
+		<PackageId>BlazorImage</PackageId>
+		<Title>BlazorImage</Title>
+		<Authors>Saif Saidi (Saif Al-Saidi)</Authors>
+		<Description>Optimize images for lightning-fast Blazor applications — supporting static rendering and interactive server-side apps.</Description>
+		<Version>1.0.0</Version>
+		<PackageVersion>1.0.0</PackageVersion>
+		<PackageReleaseNotes>Initial release</PackageReleaseNotes>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<RepositoryUrl>https://github.com/saifsaidi/BlazorImage</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageIcon>icon.png</PackageIcon>
+		<Copyright>Copyright © Saif Saidi 2025</Copyright>
+		<PackageTags>blazor, image, optimize, performance</PackageTags>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<EmbedUntrackedSources>true</EmbedUntrackedSources>
+	</PropertyGroup>
 
 	<ItemGroup>
+		<SupportedPlatform Include="browser" />
+	</ItemGroup>
 
+	<ItemGroup>
 		<InternalsVisibleTo Include="BlazorImage.UnitTests" />
 	</ItemGroup>
 
@@ -24,18 +39,33 @@
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
 	</ItemGroup>
 
-	
 	<ItemGroup>
-		<PackageReference Include="BenchmarkDotNet" Version="0.14.0" />
+		<None Include="..\LICENSE.txt">
+    <Pack>True</Pack>
+    <PackagePath>\</PackagePath>
+		</None>
+		<None Include="..\README.md">
+			<Pack>true</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Update="icon.png">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
+
 		<PackageReference Include="LiteDB" Version="5.0.21" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="9.0.3" />
-		<PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.0" /> 
+		<PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Http" Version="9.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.0" />
 		<PackageReference Include="Magick.NET-Q16-AnyCPU" Version="14.5.0" />
-		<PackageReference Include="Moq" Version="4.20.72" />
-		<PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="22.0.12" />
-		<PackageReference Include="System.Net.Http" Version="4.3.4" />
+			<PackageReference Include="System.Net.Http" Version="4.3.4" />
 	</ItemGroup>
 
 </Project>

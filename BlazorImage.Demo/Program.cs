@@ -8,7 +8,14 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddBlazorImage();
+builder.Services.AddBlazorImage(a=>
+{ 
+   a.SlidingExpiration = TimeSpan.FromHours(1);
+    a.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(10);
+    a.DefaultQuality = 70;
+    a.AspectWidth = 1.0;
+    a.AspectHeigth = 1.0;
+});
 
 var app = builder.Build();
 

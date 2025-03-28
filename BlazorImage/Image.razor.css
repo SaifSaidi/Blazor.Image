@@ -1,81 +1,79 @@
 figure {
     position: relative;
-    display: block; 
-    margin: 0;  
+    display: block;
+    margin: 0;
 }
 
+.figure-container {
+    position: relative;
+    width: 100%;
+    background-color: #f0f7ff;
+    overflow: hidden
+}
 
+.figure-container img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Ensures the image covers the container */
+}
 
+/* Reserve space for images to prevent layout shifts */
 img[loading="eager"] {
+    content-visibility: auto;
     contain-intrinsic-size: 100vw auto;
-    
 }
 
-/* Shimmer Animation */
+/* Blue-themed shimmer animation */
 @keyframes shimmer {
-    0% {
-        background-position: 200% 0;
-    }
-
-    100% {
+    to {
         background-position: -200% 0;
     }
 }
-
-
-/*placeholder will remove when image load*/
-._blazor_lazy_load.placeholder {
-    aspect-ratio: 4 / 3;
-    overflow: hidden;
-    margin: 0;
-    
-    background: linear-gradient(90deg, #f0f0f0, #e0e0e0, #f0f0f0); /* Simplified Gradient */
-    background-size: 400px 100%; /* Reduced background size */
-    animation: shimmer 1.5s linear infinite; /* Slightly slower */
-    border-radius: 8px;
-    will-change: background-position;
-}   
-
-._blazor_lazy_load {  
-    opacity: 0.8;
-    transition: filter 0.3s, opacity 0.3s ease-in-out;
-    filter: blur(5px); 
+ 
+._blazor_lazy_load {
+    filter: blur(8px);
+    will-change: transform;
+    transition: filter 0.3s ease-out;
+    background-color: transparent;
 }
 
-._blazor_lazy_load.blazorlazyloaded {
-    filter: blur(0);
-    opacity: 1;
-
-}
+    ._blazor_lazy_load.blazorlazyloaded {
+        filter: none
+    }
 
 .default-caption {
     font-size: clamp(0.875rem, 2vw, 1rem);
     padding-inline-start: 0.5em;
     padding-block-end: 0.1em;
-    margin-block-start: 0.5rem;
-    color: #555;
+    margin-block-start: 0.5rem; 
+    color: #3b5998;
+    background: linear-gradient(to right, rgba(59, 130, 246, 0.05), transparent);
+    border-left: 2px solid #4285f4;
 }
 
 .loading-spinner {
     display: flex;
     align-items: center;
     position: absolute;
-    top: 0;
-    background: darkblue;
+    top: 0; 
+    background: linear-gradient(to right, #0062e6, #33a1fd);
     color: white;
     width: 100%;
     padding: 5px;
+    border-radius: 4px 4px 0 0;
 }
 
 .spinner-border {
-    border: 0.25em solid currentColor;
-    border-radius: 50%;
-    border-top-color: transparent;
     width: 1rem;
     height: 1rem;
-    margin-right: 4px;
-    animation: spinner-rotate 1.2s linear infinite;
-    color: #0d6efd;
+    margin-right: 8px;
+    border-radius: 50%;
+    background: conic-gradient(transparent 0%, transparent 25%, #ffffff 25%, #ffffff 100%);
+    animation: spinner-rotate 1s linear infinite;
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
 }
 
 @keyframes spinner-rotate {
@@ -84,15 +82,37 @@ img[loading="eager"] {
     }
 }
 
+/* Added subtle blue pulse animation for loaded images */
+@keyframes blue-pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+    }
+
+    70% {
+        box-shadow: 0 0 0 6px rgba(59, 130, 246, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+    }
+}
+
+/* Apply pulse animation when image is loaded */
+._blazor_lazy_load.blazorlazyloaded:hover {
+    animation: blue-pulse 1.5s ease-in-out;
+}
+
+/* Error message styling */
 .error-message {
     padding: 0.75rem 1rem;
-    border: 1px solid;
+    margin-top: 0.5rem;
+    border: 1px solid #dbeafe;
+    border-left: 3px solid #2563eb;
     word-wrap: break-word;
-    backdrop-filter: blur(8px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    color: #dc2626;
+    color: #1e40af;
     border-radius: 0.25rem;
-    background-color: #fef2f2;
+    background-color: #eff6ff;
+    box-shadow: 0 1px 2px rgba(37, 99, 235, 0.1);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -102,16 +122,19 @@ img[loading="eager"] {
         transition: none !important;
         animation: none !important;
     }
+    ._blazor_lazy_load.placeholder {
+        background: #f0f7ff;
+    }
 }
 
 @media (max-width: 576px) {
     .default-caption {
-        font-size: clamp(0.75rem, 3vw, 0.9rem);
+        font-size: 0.8rem;
         padding: 0.4em;
     }
 
     .spinner-border {
-        width: 1.5rem;
-        height: 1.5rem;
+        width: 0.2rem;
+        height: 0.2rem;
     }
 }

@@ -80,6 +80,11 @@ namespace BlazorImage.Extensions
                 options.Dir = config.Dir;
                 options.DefaultFileFormat = config.DefaultFileFormat;
                 options.DefaultQuality = config.DefaultQuality;
+                options.ConfigSizes = config.ConfigSizes;
+                options.AspectHeigth = config.AspectHeigth;
+                options.AspectWidth = config.AspectWidth;
+                options.AbsoluteExpirationRelativeToNow = config.AbsoluteExpirationRelativeToNow;
+                options.SlidingExpiration = config.SlidingExpiration;
             });
 
             services.AddSingleton<IHostedService, ImageOptimizationInitializer>();

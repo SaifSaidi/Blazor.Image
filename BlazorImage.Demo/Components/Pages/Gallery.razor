@@ -1,10 +1,12 @@
 ﻿@page "/gallery"  
- <div>
+@* @rendermode @(new InteractiveServerRenderMode(true)) *@
+<div>
     <!-- Header -->
-    <header class="bg-blue-600 text-white py-16">
+     <header class="bg-blue-600 text-white py-16">
         <div class="container mx-auto px-4 text-center">
             <div class="flex mx-auto justify-center items-center">
-                <img src="/icon.png" />
+            
+                <Image WrapperClass="w-24" LazyLoading="false" Src="/icon.png" Alt="Blazor Image Icon" Width="24" Height="24" Layout="Extensions.ImageLayout.Icon" EnableDeveloperMode="true" />
                 <h1 class="text-4xl md:text-6xl font-bold mb-4">Blazor.Image</h1>
             </div>
             <p class="text-xl md:text-2xl mb-8">Image optimization for Blazor Static and Interactive Server-Side Applications.</p>
@@ -17,7 +19,7 @@
         </div>
     </header>
 
-    <main class="container mx-auto px-4 py-16">
+    <main class="container mx-auto px-4" >
 
 
         <!-- Image Loading Strategies Section -->
@@ -38,15 +40,14 @@
                         Alt="Priority loaded image of a mountain landscape"
                         LazyLoading="false"
                         Width="400"
+                        Sizes="400px"
                         Quality="80"
-                        Height="400"
-                        Sizes="50vw"
+                        Height="400" 
                         Style="width:100%; height:100%"
                         CssClass="w-full h-full"
                         Caption="Priority loaded image (eager loading)"
                         EnableDeveloperMode="true"
-                        Cached="false"
-                        />
+                               />
                     </div>
                 </div>
 
@@ -64,10 +65,10 @@
                         LazyLoading="true"
                         Width="400"
                         Height="400"
-                               Cached="false"
+                        Cached="false"
                         CssClass="w-full h-auto object-cover"
                         Caption="Lazy loaded image"
-                               EnableDeveloperMode="true" />
+                        EnableDeveloperMode="true" />
                     </div>
                 </div>
 
@@ -89,7 +90,7 @@
                         Height="400" y
                         CssClass="w-full h-auto object-cover"
                         Caption="Lazy loaded image (LD+JSON, Preloads)"
-                               EnableDeveloperMode="true" />
+                        EnableDeveloperMode="true" />
                     </div>
                 </div>
             </div>
@@ -107,8 +108,7 @@
                 <div class="px-6 pb-6">
                     <Image Src="/images/horse.jpg"
                     Alt="Art direction example of a beach scene"
-                    LazyLoading="true"
-                    Sizes="100vw"
+						   Fill="true"
                     CssClass="w-full h-auto"
                     Caption="Art direction example (changes based on screen size)"
                     />
@@ -124,7 +124,8 @@
                 <Image Src="/images/horse.jpg"
                 Alt="Gallery image horse"
                 LazyLoading="true"
-                Width="160"
+                
+                Width="400"
                 Height="160"
                 Quality="50"
                 Format="Extensions.FileFormat.avif"
@@ -138,11 +139,12 @@
                 Width="160"
                 Height="160"
                 CssClass="rounded-lg w-full h-auto object-cover"  
-                EnableDeveloperMode="false" />
+                EnableDeveloperMode="false" 
+                />
 
- 
+
                 <Image Src="/images/black-cat.jpg"
-                       Alt="Gallery image Black Cat" 
+                Alt="Gallery image Black Cat" 
                 EnableInteractiveState="true"
                 LazyLoading="false"
                 Width="160"
@@ -150,16 +152,16 @@
                 CssClass="rounded-lg w-full h-auto object-cover"
                 Caption="Black Cat"
                 />
-
-
-                <Image Src="/images/mountain.jpg"
-                Alt="Gallery image mountain"
-                LazyLoading="true"
-                Width="160"
-                Height="160"
-                CssClass="rounded-lg w-full h-auto object-cover"
-                Caption="Mountain"
-                />
+                <p>Src: @Src</p>
+                <button @onclick="OnImageClick">OnImageClick</button>
+                <Image Src="@Src"
+                    Alt="Gallery image mountain"
+                    Width="160"
+                    LazyLoading="false"
+                    Height="160"
+                    CssClass="rounded-lg w-full h-auto object-cover"
+                    Caption="Mountain"
+					EnableInteractiveState="true" />
 
                 <Image Src="/images/person.png"
                 Alt="Gallery image person"
@@ -172,11 +174,12 @@
 
                 <Image Src="/images/photo.jpeg"
                 Alt="Gallery image photo"
-                Width="1200"
-                Height="400"
+                Width="160"
+                Height="160"
                 CssClass="rounded-lg w-full h-auto object-cover"
                 Caption="Photo"
                 CaptionClass="text-center" 
+
                 Format="Extensions.FileFormat.webp"
                 />
 
@@ -191,4 +194,13 @@
         </div>
     </footer>
 </div>
- 
+
+
+@code {
+    private string Src = "";
+
+	private void OnImageClick()
+    {
+		Src = "/images/mountain.jpg";
+    }
+}

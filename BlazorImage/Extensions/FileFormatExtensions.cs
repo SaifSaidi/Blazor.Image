@@ -1,5 +1,7 @@
 ﻿namespace BlazorImage.Extensions
 {
+
+
     /// <summary>
     /// Represents the different image file formats supported by the image processing service.
     /// </summary>
@@ -63,6 +65,9 @@
                 _ => string.Empty
             };
         }
+
+        // Pre-cached format strings (initialized once)
+        public static readonly string[] FormatStrings = [.. Enum.GetValues<FileFormat>().Select(f => f.ToString().ToLowerInvariant())];
 
     }
 }

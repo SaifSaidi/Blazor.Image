@@ -22,11 +22,9 @@ internal class CacheService : ICacheService
     private readonly DictionaryCacheDataService _dictionaryCacheData;
 
     private readonly ILiteDatabase _db;
-    private static readonly TimeSpan AbsoluteExpirationRelativeToNowValue
-        = TimeSpan.FromHours(1);
+    private readonly TimeSpan AbsoluteExpirationRelativeToNowValue;
 
-    private static readonly TimeSpan SlidingExpirationValue 
-        = TimeSpan.FromMinutes(30);
+    private readonly TimeSpan? SlidingExpirationValue;
 
     private const string ErrorRetrievingMessage = "Error retrieving from cache or database";
     private const string ErrorSavingMessage = "Error saving to cache or database";
@@ -50,10 +48,13 @@ internal class CacheService : ICacheService
         
         string dirName = options.Value.Dir.TrimStart('/');
          _DirName = dirName; 
-         _Dir = Path.Combine(env.WebRootPath,dirName); 
+         _Dir = Path.Combine(env.WebRootPath,dirName);
+
+        AbsoluteExpirationRelativeToNowValue = options.Value.AbsoluteExpirationRelativeToNow;
+        SlidingExpirationValue = options.Value.SlidingExpiration;
     }
 
-    private static MemoryCacheEntryOptions GetCacheEntryOptions()
+    private  MemoryCacheEntryOptions GetCacheEntryOptions()
     {
         return new MemoryCacheEntryOptions
         {
@@ -61,11 +62,13 @@ internal class CacheService : ICacheService
             SlidingExpiration = SlidingExpirationValue,
             Size = 1  
         };
+
     }
     public async ValueTask<ImageInfo?> GetFromCacheAsync(string cacheKey)
     {
         if (_cache.TryGetValue(cacheKey, out ImageInfo? cachedInfo))
         {
+ 
             return cachedInfo;
         }
 
@@ -75,7 +78,7 @@ internal class CacheService : ICacheService
         {
             var cachedFromDb = GetImageInfoFromDatabase(cacheKey);
             
-            if (cachedFromDb != null)
+             if (cachedFromDb != null)
             {
                 _cache.Set(cacheKey, cachedFromDb, GetCacheEntryOptions());
              } 
@@ -118,7 +121,7 @@ internal class CacheService : ICacheService
         }
 
         _cache.Set(cacheKey, new ImageInfo(imageInfo.SanitizedName, imageInfo.Width,
-            imageInfo.Height, imageInfo.Format, imageInfo.Quality, null)
+            imageInfo.Height, imageInfo.Format, imageInfo.Quality)
         {   
             Key = cacheKey,  
         }, GetCacheEntryOptions());
@@ -148,6 +151,7 @@ internal class CacheService : ICacheService
     {
 
         imageInfo.Key = cacheKey;
+        imageInfo.ProcessedTime = DateTime.UtcNow;
         var collection = _db.GetCollection<ImageInfo>(Constants.LiteDbCollection);
 
         collection.EnsureIndex(x => x.Key, true); 
@@ -227,6 +231,7 @@ internal class CacheService : ICacheService
         // Recreate the LiteDB file
         collection.DeleteAll();
         collection.EnsureIndex(x => x.Key, true);
+        _dictionaryCacheData.ClearData();
         _logger.LogInformation("Recreated LiteDB file and collection at path: {LiteDbPath}", collection.Name);
     }
 
@@ -248,7 +253,8 @@ internal class CacheService : ICacheService
             _logger.LogInformation("Creating directory: {Directory}", directoryPath);
             Directory.CreateDirectory(directoryPath);
         }
-         _logger.LogDebug("Ensured directories exist at path: {DirectoryPath}", directoryPath); // Added logging for directory re-creation
+        _dictionaryCacheData.ClearData();
+        _logger.LogDebug("Ensured directories exist at path: {DirectoryPath}", directoryPath); // Added logging for directory re-creation
     }
 
     private void CompactMemoryCache()

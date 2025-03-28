@@ -102,11 +102,11 @@ internal class BlazorImageService : IBlazorImageService
     }
 
  
-    public static string GenerateCacheKey(string src, int? quality, FileFormat? format)
+    private static string GenerateCacheKey(string src, int? quality, FileFormat? format)
     {
         // Use cached format strings from previous optimizations
         static ReadOnlySpan<char> GetFormatSpan(FileFormat? format) =>
-            format.HasValue ? _formatStrings[(int)format.Value].AsSpan() : default;
+            format.HasValue ? FileFormatExtensions.FormatStrings[(int)format.Value].AsSpan() : default;
 
         // Stackalloc buffer for common cases (up to 256 characters)
         Span<char> buffer = stackalloc char[256];
@@ -143,13 +143,9 @@ internal class BlazorImageService : IBlazorImageService
         return new string(buffer.Slice(0, pos));
     }
 
+     
 
-    // Pre-cached format strings (initialized once)
-    private static readonly string[] _formatStrings = Enum.GetValues<FileFormat>()
-        .Select(f => f.ToString().ToLowerInvariant())
-        .ToArray();
-
-    public async Task<Result<ImageInfo>> OptimizeAndCacheImage(string src, int quality, FileFormat format, string cacheKey, ChannelWriter<string> writer)
+    private async Task<Result<ImageInfo>> OptimizeAndCacheImage(string src, int quality, FileFormat format, string cacheKey, ChannelWriter<string> writer)
     {
         var lockKey = $"image_processing_{cacheKey}";
         var processingLock = _locks.GetOrAdd(lockKey, _ => new SemaphoreSlim(1, 1));
@@ -205,18 +201,18 @@ internal class BlazorImageService : IBlazorImageService
         }
     }
 
-    public bool IsImageBeingProcessed(string cacheKey) =>
+    private bool IsImageBeingProcessed(string cacheKey) =>
         _requestCounts.TryGetValue(cacheKey, out var count) && count > 0;
 
-    public void MarkImageAsProcessing(string cacheKey) =>
+    private void MarkImageAsProcessing(string cacheKey) =>
         _requestCounts[cacheKey] = 1; // Mark that the image is being processed.
 
-    public void DecrementRequestCount(string cacheKey) =>
+    private void DecrementRequestCount(string cacheKey) =>
         _requestCounts.AddOrUpdate(cacheKey, 0, (_, currentCount) => currentCount - 1); // Release the request count
 
-    public IEnumerable<Task> ProcessImages(string src, int quality, FileFormat format, ChannelWriter<string> writer)
+    private IEnumerable<Task> ProcessImages(string src, int quality, FileFormat format, ChannelWriter<string> writer)
     {
-        var sizes = Constants.ConfigSizes;
+        var sizes = _config.ConfigSizes;
         var originalPath = _fileService.GetRootPath(src);
         var i = 1;
         return sizes.Select(size =>
@@ -224,7 +220,7 @@ internal class BlazorImageService : IBlazorImageService
             return Task.Run(async () =>
             {
                 var width = size;
-                var height = HelpersMethods.ToAspectRatio(width, 4.0, 3.0);
+                var height = HelpersMethods.ToAspectRatio(width, _config.AspectWidth, _config.AspectHeigth);
                 var imageName = _imageElementService.GenerateImageName(src, width, quality, format);
                 var outputFilePath = GetImageProccessOutputDir(imageName);
                 await writer.WriteAsync($"Generating image {size}w size... {i} of {sizes.Length}");
@@ -242,24 +238,26 @@ internal class BlazorImageService : IBlazorImageService
         });
     }
 
-    public async Task GeneratePlaceholderImage(string originalPath, string src, FileFormat format)
+    private async Task GeneratePlaceholderImage(string originalPath, string src, FileFormat format)
     {
 
         var placeholderWidth = Constants.PlaceholderWidth;
         var placeholderImageName = _imageElementService.GenerateImagePlaceholder(src, format);
         var placeholderOutputFile = GetImageProccessOutputDir(placeholderImageName);
-        var placeholderHeight = HelpersMethods.ToAspectRatio(placeholderWidth, 4.0, 3.0);
+        var placeholderHeight = HelpersMethods.ToAspectRatio(placeholderWidth, _config.AspectWidth, _config.AspectHeigth);
         if (_fileService.FileExistsInRootPath(placeholderOutputFile))
         {
             return;
         }
+        // Ensure the directory exists before processing the images
+        _fileService.CreateDirectoryForFile(placeholderOutputFile); 
         await _imageProcessingService.ProcessAndSaveImageAsync(originalPath, placeholderOutputFile, placeholderWidth, placeholderHeight, Constants.PlaceholderQuality, format);
     }
 
-    public async Task GenerateFallbackImages(string originalPath, string src, int quality, FileFormat format)
+    private async Task GenerateFallbackImages(string originalPath, string src, int quality, FileFormat format)
     {
-        var fallbackWidth = Constants.ConfigSizes.Last(); // Default fallback width
-        var fallbackHeight = HelpersMethods.ToAspectRatio(fallbackWidth, 4.0, 3.0);
+        var fallbackWidth = _config.ConfigSizes.Last(); // Default fallback width
+        var fallbackHeight = HelpersMethods.ToAspectRatio(fallbackWidth, _config.AspectWidth, _config.AspectHeigth);
 
         var jpegFallbackOutputFile = _fileService.GetRootPath(Path.Combine(_config.Dir, _imageElementService.GenerateImageFallbackSrc(src, FileFormat.jpeg)));
         var formatFallbackOutputFile = _fileService.GetRootPath(Path.Combine(_config.Dir, _imageElementService.GenerateImageFallbackSrc(src, format)));
@@ -268,19 +266,26 @@ internal class BlazorImageService : IBlazorImageService
         {
             return;
         }
+
+        // Ensure the directory exists before processing the images
+        _fileService.CreateDirectoryForFile(jpegFallbackOutputFile);
+        _fileService.CreateDirectoryForFile(formatFallbackOutputFile);
+
         await Task.WhenAll(
             _imageProcessingService.ProcessAndSaveImageAsync(originalPath, jpegFallbackOutputFile, fallbackWidth, fallbackHeight, quality, FileFormat.jpeg),
             _imageProcessingService.ProcessAndSaveImageAsync(originalPath, formatFallbackOutputFile, fallbackWidth, fallbackHeight, quality, format)
         );
     }
 
-    public ImageInfo CreateImageInfo(string src, int quality, FileFormat format)
+    private ImageInfo CreateImageInfo(string src, int quality, FileFormat format)
     {
         var sanitizedName = _fileService.SanitizeFileName(src);
-        var width = Constants.ConfigSizes.Last();
-        var height = HelpersMethods.ToAspectRatio(width, 4.0, 3.0);
+        var width = _config.ConfigSizes.Last();
+        var height = HelpersMethods.ToAspectRatio(width, _config.AspectWidth, _config.AspectHeigth);
 
 
-        return new ImageInfo( sanitizedName, width, height, format, quality, DateTime.Now) { Key= $"{src}-{format}-{quality}" };
+        return new ImageInfo( sanitizedName, width, height, format, quality) {
+            Key= $"{src}-{format}-{quality}"
+        };
     }
 }
