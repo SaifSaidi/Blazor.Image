@@ -36,7 +36,7 @@
 @code {
 
 
-    [CascadingParameter] public Image ImageComponent { get; set; } = default!;
+    [CascadingParameter] public Picture ImageComponent { get; set; } = default!;
     [Parameter] public RenderFragment ChildContent { get; set; } = default!;
 
     private bool _showDetails = false;
@@ -90,6 +90,7 @@
                 <li class="info-separator"></li>
                 <li><strong>Alt Text:</strong> <span class="info-value">@ImageComponent.Alt</span></li>
                 <li><strong>Title:</strong> <span class="info-value">@ImageComponent.Title</span></li>
+                <li><strong>Caption:</strong> <span class="info-value">@ImageComponent.Caption</span></li>
                 <li><strong>CSS Class:</strong> <span class="info-value">@ImageComponent.CssClass</span></li>
                 <li><strong>Wrapper Class:</strong> <span class="info-value">@ImageComponent.WrapperClass</span></li>
                 <li><strong>Width:</strong> <span class="info-value">@ImageComponent.Width</span></li>

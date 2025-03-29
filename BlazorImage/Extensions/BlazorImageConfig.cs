@@ -19,7 +19,7 @@ namespace BlazorImage.Extensions
         public FileFormat DefaultFileFormat { get; set; } = Constants.Format;
 
         /// <summary>
-        /// Path for storing processed images. Default is "_optimized".
+        /// Path for storing processed images. Default is "_blazor".
         /// </summary>
         public string Dir { get; set; } = Constants.DefaultDir;
 

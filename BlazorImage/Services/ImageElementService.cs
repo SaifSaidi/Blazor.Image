@@ -8,12 +8,10 @@ namespace BlazorImage.Services;
 
 internal class ImageElementService : IImageElementService
 {
-    // Pre-compute common string fragments
-    private static readonly string _placeholderSuffix = "-placeholder.";
+     private static readonly string _placeholderSuffix = "-placeholder.";
     private static readonly string _wqSuffix = "w-q";
 
-    // Frequently used constants
-    private const int MAX_STACK_ALLOC = 512;
+     private const int MAX_STACK_ALLOC = 512;
     private const int ESTIMATED_SIZE_PER_BREAKPOINT = 25;
 
     private readonly BlazorImageConfig _config;
@@ -22,11 +20,8 @@ internal class ImageElementService : IImageElementService
     private readonly IFileService _fileService;
     private readonly DictionaryCacheDataService _dictionaryCacheData;
 
-    // Cache for commonly used sizes strings to avoid repeated allocations
-    private static readonly ConcurrentDictionary<string, string> _sizesCache = new();
-
-    // Improved StringBuilder pool using Microsoft.Extensions.ObjectPool
-    private static readonly ObjectPool<StringBuilder> _stringBuilderPool =
+  
+     private static readonly ObjectPool<StringBuilder> _stringBuilderPool =
         new DefaultObjectPool<StringBuilder>(new StringBuilderPooledObjectPolicy
         {
             InitialCapacity = 256,
@@ -55,8 +50,7 @@ internal class ImageElementService : IImageElementService
             Quality = quality,
             Format = format,
             WidthFlag = width ?? -1
-        };
-
+        }; 
         // Use GetOrAdd with value factory to avoid duplicate computation
         return _dictionaryCacheData.SourceInfoCache.GetOrAdd(key, static (k, ctx) =>
         {
@@ -94,8 +88,7 @@ internal class ImageElementService : IImageElementService
         string formatExt = (format ?? defaultFormat).ToFileExtension();
         int qualityValue = quality ?? defaultQuality;
 
-        // Use StringBuilder from pool for better performance
-        var sb = _stringBuilderPool.Get();
+         var sb = _stringBuilderPool.Get();
         try
         {
             sb.Clear();
@@ -126,8 +119,7 @@ internal class ImageElementService : IImageElementService
         string sanitizedName = SanitizeFileName(src);
         string formatExt = format.ToFileExtension();
 
-        // Use StringBuilder from pool for better performance
-        var sb = _stringBuilderPool.Get();
+         var sb = _stringBuilderPool.Get();
         try
         {
             sb.Clear();
@@ -154,8 +146,7 @@ internal class ImageElementService : IImageElementService
         string sanitizedName = SanitizeFileName(src);
         string formatExt = format.ToFileExtension();
 
-        // Use StringBuilder from pool for better performance
-        var sb = _stringBuilderPool.Get();
+         var sb = _stringBuilderPool.Get();
         try
         {
             sb.Clear();

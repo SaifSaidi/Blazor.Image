@@ -64,8 +64,7 @@ internal class FileService : IFileService
         if (Directory.Exists(directory))
             return;
             
-        Directory.CreateDirectory(directory); // Creates directory only if it doesn't exist
-
+        Directory.CreateDirectory(directory); 
     }
 
     public double GetFileSizeInKb(string relativePath)

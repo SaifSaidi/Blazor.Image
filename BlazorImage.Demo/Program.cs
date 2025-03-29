@@ -2,19 +2,15 @@ using BlazorImage.Demo.Components;
 using BlazorImage.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
-  
-
+ 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddBlazorImage(a=>
-{ 
-   a.SlidingExpiration = TimeSpan.FromHours(1);
-    a.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(10);
-    a.DefaultQuality = 70;
-    a.AspectWidth = 1.0;
-    a.AspectHeigth = 1.0;
+builder.Services.AddBlazorImage(options =>
+{
+    //options.Dir = "output";
+    options.ConfigSizes = [640, 1024, 1280, 1536];
 });
 
 var app = builder.Build();
@@ -31,10 +27,10 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAntiforgery();
-app.MapBlazorImage("/blazor/images");
 
 app.MapStaticAssets();
 
+app.MapBlazorImage("/blazor/images");
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode(); 
 

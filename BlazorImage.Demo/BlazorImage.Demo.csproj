@@ -10,11 +10,7 @@
     <Content Remove="wwwroot\icon.png" />
   </ItemGroup>
 
- 
-  <ItemGroup>
-    <Folder Include="wwwroot\images\_proccessed\" />
-  </ItemGroup>
-
+  
  
   <ItemGroup>
     <None Include="wwwroot\icon.png">
@@ -24,11 +20,14 @@
   </ItemGroup>
 
   
-
  
   <ItemGroup>
-    <ProjectReference Include="..\BlazorImage\BlazorImage.csproj" />
+    <PackageReference Include="BlazorImage" Version="1.0.1" />
   </ItemGroup>
+ 
+   
+  
+	 
 
   
 </Project>

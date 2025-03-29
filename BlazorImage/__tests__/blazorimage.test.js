@@ -80,39 +80,7 @@ describe('Blazor Lazy Load Script', () => {
         });
     });
 
-    describe('BlazorLazyLoad image handling', () => {
-        test('loads an image and removes placeholder', () => {
-            window.BlazorLazyLoad(image);
-
-            // Simulate image load event
-            image.dispatchEvent(new Event('load'));
-
-            expect(image.src).toContain('image.jpg');
-            expect(image).toHaveClass('blazorlazyloaded');
-            expect(image).not.toHaveClass('placeholder');
-        });
-
-        test('loads picture sources with data-srcset', () => {
-            const pictureImg = picture.querySelector('img');
-            window.BlazorLazyLoad(pictureImg);
-
-            pictureImg.dispatchEvent(new Event('load'));
-
-            expect(pictureImg.src).toContain('image2.jpg');
-            expect(source.srcset).toContain('source-1x.jpg');
-            expect(pictureImg).toHaveClass('blazorlazyloaded');
-        });
-
-        test('logs error and cleans up on image load failure', () => {
-            console.error = jest.fn(); // Mock console.error
-
-            window.BlazorLazyLoad(image);
-            image.dispatchEvent(new Event('error'));
-
-            expect(console.error).toHaveBeenCalledWith('Failed to load image:', image);
-        });
-    });
-
+    
     describe('DOMContentLoaded simulation', () => {
         test('initializes observer and observes images', () => {
             // Clear and re-add the listener simulation

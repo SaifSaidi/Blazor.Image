@@ -37,19 +37,16 @@ namespace BlazorImage.Extensions
             this IServiceCollection services,
             Action<BlazorImageConfig>? configureOptions = default!)
         {
-            // Register your services here
-
+ 
             ArgumentNullException.ThrowIfNull(services);
 
-            // Create and configure the options instance
-            var config = new BlazorImageConfig();
+             var config = new BlazorImageConfig();
             configureOptions?.Invoke(config);
 
             // Normalize directory path
             config.Dir = config.Dir.Trim('/');
 
-            // Register required services
-            services.AddMemoryCache();
+             services.AddMemoryCache();
 
             // Add LiteDB singleton
             services.AddSingleton<ILiteDatabase>(sp =>
@@ -94,7 +91,7 @@ namespace BlazorImage.Extensions
     }
 
     // Hosted service to handle directory initialization after DI is built
-    public class ImageOptimizationInitializer : IHostedService
+    internal class ImageOptimizationInitializer : IHostedService
     {
         private readonly IServiceScopeFactory _scopeFactory;
 

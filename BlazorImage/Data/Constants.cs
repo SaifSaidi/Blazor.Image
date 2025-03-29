@@ -10,7 +10,7 @@ internal static class Constants
     public const string LiteDbName = "images.db";
     public const string LiteDbCollection = "images";
     public const FileFormat Format = FileFormat.webp;
-    public const string DefaultDir = "_optimized";
+    public const string DefaultDir = "_blazor";
  
      
 }

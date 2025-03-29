@@ -1,21 +1,24 @@
-
-.img-container {
+figure {
     position: relative;
-    width: 100%;
     display: block;
-    background-color: #f0f7ff;
-    overflow: hidden;
     margin: 0;
 }
 
-    .img-container img {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        object-fit: cover; /* Ensures the image covers the container */
-    }
+.figure-container {
+    position: relative;
+    width: 100%;
+    background-color: #f0f7ff;
+    overflow: hidden
+}
+
+.figure-container img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Ensures the image covers the container */
+}
 
 /* Reserve space for images to prevent layout shifts */
 img[loading="eager"] {
@@ -41,7 +44,16 @@ img[loading="eager"] {
         filter: none
     }
 
- 
+.default-caption {
+    font-size: clamp(0.875rem, 2vw, 1rem);
+    padding-inline-start: 0.5em;
+    padding-block-end: 0.1em;
+    margin-block-start: 0.5rem; 
+    color: #3b5998;
+    background: linear-gradient(to right, rgba(59, 130, 246, 0.05), transparent);
+    border-left: 2px solid #4285f4;
+}
+
 .loading-spinner {
     display: flex;
     align-items: center;

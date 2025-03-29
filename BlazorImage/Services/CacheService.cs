@@ -293,7 +293,7 @@ internal class CacheService : ICacheService
         var collection = _db.GetCollection<ImageInfo>(Constants.LiteDbCollection);
 
 
-        if (collection != null) // Proceed only if path is valid
+        if (collection != null)
         {
             collection.DeleteAll();
            
@@ -308,7 +308,6 @@ internal class CacheService : ICacheService
 
     private StringBuilder BlazorImageHtml(string route, IEnumerable<ImageInfo> imageInfos)
     {
-        // 1- Good Checks: ArgumentNullException/ArgumentException for route and imageInfos (though imageInfos can be empty)
         if (string.IsNullOrEmpty(route))
         {
             throw new ArgumentException("Route cannot be null or empty.", nameof(route));
@@ -325,7 +324,7 @@ internal class CacheService : ICacheService
         sb.AppendLine("<head>");
         sb.AppendLine("    <meta charset='UTF-8'>");
         sb.AppendLine("    <meta name='viewport' content='width=device-width, initial-scale=1.0'>");
-        sb.AppendLine("    <title>Blazor.Image Dashboard</title>");
+        sb.AppendLine("    <title>BlazorImage Dashboard</title>");
 
         sb.AppendLine("    <script src='https://cdn.tailwindcss.com'></script>");
         sb.AppendLine("    <link href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css' rel='stylesheet' />");
@@ -349,8 +348,8 @@ internal class CacheService : ICacheService
         sb.AppendLine("    <div class='container mx-auto px-4 md:px-8 py-10'>");
         sb.AppendLine("        <header class='mb-10 flex justify-between items-center'>");
         sb.AppendLine("            <div>");
-        sb.AppendLine("                <h1 class='text-3xl font-bold text-indigo-700'><i class='fa fa-image text-indigo-500 mr-2'></i> Blazor.Image Dashboard</h1>");
-        sb.AppendLine("                <p class='text-gray-600 mt-2'>Monitor and manage your Blazor.Image cache services with ease.</p>");
+        sb.AppendLine("                <h1 class='text-3xl font-bold text-indigo-700'><i class='fa fa-image text-indigo-500 mr-2'></i> BlazorImage Dashboard</h1>");
+        sb.AppendLine("                <p class='text-gray-600 mt-2'>Monitor and manage your BlazorImage cache services with ease.</p>");
         sb.AppendLine("            </div>");
 
         sb.AppendLine("            <div class='relative inline-block text-left dropdown'>"); // Dropdown container
@@ -455,7 +454,7 @@ internal class CacheService : ICacheService
         {
 
             var formatExt = imageInfo.Format.GetValueOrDefault().ToFileExtension();
-            var imagPath = $"/{_DirName}/{imageInfo.SanitizedName}/{formatExt}/{imageInfo.SanitizedName}-480w-q{imageInfo.Quality}.{formatExt}";
+            var imagPath = $"/{_DirName}/{imageInfo.SanitizedName}/{imageInfo.SanitizedName}.{formatExt}";
 
             sb.AppendLine($"                        <tr class='{(i % 2 == 0 ? "bg-gray-50" : "bg-white")} hover:bg-gray-100 transition-colors'>");
             sb.AppendLine($"                            <td class='px-6 py-4 whitespace-nowrap text-sm font-medium'><a href='{route}/delete?cache={imageInfo.Key}' class='text-red-600 hover:text-red-900 transition-colors'><i class='fa fa-trash-alt mr-1'></i> Remove</a></td>");

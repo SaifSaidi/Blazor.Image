@@ -29,8 +29,7 @@ namespace BlazorImage.Data
                 return 0;
             }
 
-            // Check if width exceeds the largest size, return the largest size index
-            if (width >= ConfigSizes[^1])
+             if (width >= ConfigSizes[^1])
             {
                 return ConfigSizes.Length - 1;
             }

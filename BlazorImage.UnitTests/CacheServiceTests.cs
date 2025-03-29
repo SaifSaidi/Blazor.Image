@@ -55,7 +55,7 @@ namespace BlazorImage.UnitTests
         {
             // Arrange
             var cacheKey = "testKey";
-            var expectedImageInfo = new ImageInfo("testImage", 100, 100, FileFormat.webp, 75, null) { Key = cacheKey };
+            var expectedImageInfo = new ImageInfo("testImage", 100, 100, FileFormat.webp, 75) { Key = cacheKey };
 
             object cacheValue = expectedImageInfo;
             _mockMemoryCache
@@ -90,7 +90,7 @@ namespace BlazorImage.UnitTests
         {
             // Arrange
             var cacheKey = "testKey";
-            var imageInfo = new ImageInfo("testImage", 100, 100, FileFormat.webp, 75, null);
+            var imageInfo = new ImageInfo("testImage", 100, 100, FileFormat.webp, 75);
 
             _mockMemoryCache
                 .Setup(cache => cache.CreateEntry(cacheKey))

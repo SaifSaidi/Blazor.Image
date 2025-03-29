@@ -24,33 +24,39 @@
 }
 else
 {
-    <div class="@WrapperClass" style="@WrapperStyle">
-        <div class="img-container" style="padding-top: @(AspectRatioPadding)%;">
+    <figure style="@WrapperStyle" class="@WrapperClass" role="group">
+        <div class="figure-container" style="padding-top: @(AspectRatioPadding)%">
+            <picture>
+                <source srcset="@(LazyLoading ? _placeholder : Source)"
+                data-srcset="@(LazyLoading ? Source : "")"
+                sizes="@Sizes"
+                type="@_mimeType" 
+                />
 
-            <img 
-            srcset="@(LazyLoading ? _placeholder : Source)"
-            data-srcset="@(LazyLoading ? Source : "")"
-            sizes="@Sizes"
-            src="@_FallbackImageSrc"
-            alt="@Alt"
-            title="@Title"
-            width="@Width"
-            height="@Height"
-            class="@LoadingClass @CssClass"
-            style="@Style"
-            loading="@LazyLoadingAttr"
-            @ref="_imageRef"
-            @attributes="AdditionalAttributes" />
-
-            @if (EnableDeveloperMode)
-            {
-                <CascadingValue IsFixed="true" Value="this">
-                    <DeveloperInfoPanel />
-                </CascadingValue>
-            }
+                <img src="@_FallbackImageSrc"
+                alt="@Alt"
+                title="@Title"
+                width="@Width"
+                height="@Height"
+                class="@LoadingClass @CssClass"
+                style="@Style"
+                loading="@LazyLoadingAttr"
+                @ref="_imageRef"
+                @attributes="AdditionalAttributes" />
+            </picture>
         </div>
-    </div>
+        @if (!string.IsNullOrEmpty(Caption))
+        {
+            <figcaption class="@(string.IsNullOrEmpty(CaptionClass) ? "default-caption" : CaptionClass)">@Caption</figcaption>
+        }
 
+        @if (EnableDeveloperMode)
+        {
+            <CascadingValue IsFixed="true" Value="this">
+                <PictureDeveloperInfoPanel />
+            </CascadingValue>
+        }
+    </figure>
 
     @if (!string.IsNullOrEmpty(_error))
     {
@@ -90,10 +96,10 @@ else
     [Parameter] public FileFormat? Format { get; set; }
     [Parameter]
     public string? Sizes { get; set; } = "(min-width: 1024px) 1024px, 100vw";
-
+    [Parameter] public string? CaptionClass { get; set; }
+    [Parameter] public string? Caption { get; set; }
     [Parameter] public bool EnableDeveloperMode { get; set; }
     [Parameter(CaptureUnmatchedValues = true)] public Dictionary<string, object>? AdditionalAttributes { get; set; }
-
 
     protected override async Task OnInitializedAsync()
     {
@@ -103,8 +109,8 @@ else
             return;
         }
 
-        if (Fill == true && (Width != null || Height != null))  
-        {  
+        if (Fill == true && (Width != null || Height != null))
+        {
             _error = "If 'Fill' is specified to `true`, both 'Width' and 'Height' must not be provided.";
             return;
         }
@@ -192,5 +198,6 @@ else
         Source = source;
         _FallbackImageSrc = fallback;
         _mimeType = imageInfo.Format?.ToMimeType();
-        _placeholder = EnableInteractiveState ? source : placeholder;     }
+        _placeholder = EnableInteractiveState ? source : placeholder;// (LazyLoading ? placeholder : _FallbackImageSrc);
+    }
 }

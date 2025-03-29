@@ -104,12 +104,10 @@ internal class BlazorImageService : IBlazorImageService
  
     private static string GenerateCacheKey(string src, int? quality, FileFormat? format)
     {
-        // Use cached format strings from previous optimizations
-        static ReadOnlySpan<char> GetFormatSpan(FileFormat? format) =>
+         static ReadOnlySpan<char> GetFormatSpan(FileFormat? format) =>
             format.HasValue ? FileFormatExtensions.FormatStrings[(int)format.Value].AsSpan() : default;
 
-        // Stackalloc buffer for common cases (up to 256 characters)
-        Span<char> buffer = stackalloc char[256];
+         Span<char> buffer = stackalloc char[256];
         int pos = 0;
 
         // Append source
