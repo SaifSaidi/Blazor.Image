@@ -36,7 +36,7 @@ To install BlazorImage, add the following package reference to your project file
 Then, add the following namespace to your `_Imports.razor` file:
 
 ```csharp
-using BlazorImage.Extensions;
+using BlazorImage;
 ```
 
 ## Setup Services
@@ -88,6 +88,16 @@ services.AddBlazorImage(options =>
 ```
 
 ## Usage
+
+### Add script to App.razor
+```html
+<script src="_content/BlazorImage/BlazorImage.min.js"></script>
+```
+
+### CSS
+```html
+<link rel="stylesheet" href="@Assets["Assembly.styles.css"]" />
+```
 
 ### Using `Image` Component
 
