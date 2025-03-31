@@ -203,5 +203,5 @@ The `Picture.razor` component is used to display optimized images with support f
 ```
 
 ## License
-
+ <img width="36" height="auto" src="https://github.com/user-attachments/assets/09c77990-a1ed-4564-849c-1dc92ba8e64d" /> 
 BlazorImage is licensed under the MIT License.
