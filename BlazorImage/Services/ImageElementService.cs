@@ -49,7 +49,7 @@ internal class ImageElementService : IImageElementService
             SanitizedName = sanitizedName,
             Quality = quality,
             Format = format,
-            WidthFlag = width ?? -1
+            Width = width ?? -1
         }; 
         // Use GetOrAdd with value factory to avoid duplicate computation
         return _dictionaryCacheData.SourceInfoCache.GetOrAdd(key, static (k, ctx) =>
@@ -69,9 +69,9 @@ internal class ImageElementService : IImageElementService
             var placeholder = BuildPlaceholderPath(configDir, k.SanitizedName, k.Format, formatStrings, pathBuffer);
 
             // Build source
-            var source = k.WidthFlag == -1
+            var source = k.Width == -1
                 ? GetSourceAsString(configDir, k.SanitizedName, k.Quality, k.Format, _configSizes)
-                : GetStaticSourceAsString(configDir, k.SanitizedName, k.Quality, k.Format, k.WidthFlag);
+                : GetStaticSourceAsString(configDir, k.SanitizedName, k.Quality, k.Format, k.Width);
 
             return (source, fallback, placeholder);
         }, (_configDir, FileFormatExtensions.FormatStrings));

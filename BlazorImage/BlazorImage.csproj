@@ -16,7 +16,7 @@
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<RepositoryUrl>https://github.com/saifsaidi/BlazorImage</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
-		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageReadmeFile>readme.md</PackageReadmeFile>
 		<PackageIcon>icon.png</PackageIcon>
 		<Copyright>Copyright © Saif Saidi 2025</Copyright>
 		<PackageTags>blazor, image, optimize, performance</PackageTags>
@@ -45,10 +45,6 @@
     <Pack>True</Pack>
     <PackagePath>\</PackagePath>
 		</None>
-		<None Include="..\README.md">
-			<Pack>true</Pack>
-			<PackagePath>\</PackagePath>
-		</None>
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
@@ -64,6 +60,10 @@
 	<ItemGroup>
 	  <None Update="icon.png">
 	    <Pack>True</Pack>
+	    <PackagePath>\</PackagePath>
+	  </None>
+	  <None Update="readme.md">
+	    <Pack>true</Pack>
 	    <PackagePath>\</PackagePath>
 	  </None>
 	</ItemGroup>

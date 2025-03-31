@@ -7,6 +7,5 @@ internal interface IFileService
     void CreateDirectoryForFile(string fileName);
     string SanitizeFileName(string fileName);
     double GetFileSizeInKb(string relativePath);
-
     string GetRootPath(string webRootRelativePath);
 }

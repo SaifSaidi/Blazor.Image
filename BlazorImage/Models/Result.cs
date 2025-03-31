@@ -1,13 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace BlazorImage.Models
-{
-
-
+﻿namespace BlazorImage.Models
+{    
     internal sealed class Result<T>
     {
         public bool IsSuccess { get; }
