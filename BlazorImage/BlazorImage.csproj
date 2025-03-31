@@ -10,18 +10,18 @@
 		<Title>BlazorImage</Title>
 		<Authors>Saif Saidi (Saif Al-Saidi)</Authors>
 		<Description>Optimize images for lightning-fast Blazor applications — supporting static rendering and interactive server-side apps.</Description>
-		<Version>1.0.1</Version>
-		<PackageVersion>1.0.1</PackageVersion>
-		<PackageReleaseNotes>Initial release</PackageReleaseNotes>
-		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<Version>1.0.2</Version>
+		<PackageVersion>1.0.2</PackageVersion>
+		<PackageReleaseNotes>Versions 1.0.x</PackageReleaseNotes>
 		<RepositoryUrl>https://github.com/saifsaidi/BlazorImage</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
-		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageReadmeFile>readme.md</PackageReadmeFile>
 		<PackageIcon>icon.png</PackageIcon>
-		<Copyright>Copyright © Saif Saidi 2025</Copyright>
-		<PackageTags>blazor, image, optimize, performance</PackageTags>
+		<Copyright>Copyright © Saif Saidi (Saif Al-Saidi) 2025</Copyright>
+		<PackageTags>dotnet, blazor, image, optimize, performance</PackageTags>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<IsPackable>true</IsPackable>
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<EmbedUntrackedSources>true</EmbedUntrackedSources>
@@ -45,10 +45,6 @@
     <Pack>True</Pack>
     <PackagePath>\</PackagePath>
 		</None>
-		<None Include="..\README.md">
-			<Pack>true</Pack>
-			<PackagePath>\</PackagePath>
-		</None>
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
@@ -64,6 +60,10 @@
 	<ItemGroup>
 	  <None Update="icon.png">
 	    <Pack>True</Pack>
+	    <PackagePath>\</PackagePath>
+	  </None>
+	  <None Update="readme.md">
+	    <Pack>true</Pack>
 	    <PackagePath>\</PackagePath>
 	  </None>
 	</ItemGroup>

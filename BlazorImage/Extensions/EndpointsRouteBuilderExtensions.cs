@@ -17,12 +17,13 @@ namespace BlazorImage.Extensions
             {
                 throw new ArgumentException("route is null or whitespace!");
             }
+
             var routeGroup = app.MapGroup(route);
 
 
-            routeGroup.MapGet("/", (HttpContext context, ICacheService cacheService) =>
+            routeGroup.MapGet("/", (HttpContext context, IDashboardService dashboardService) =>
             {
-              return  TypedResults.Content(cacheService.ReadData(route), "text/html; charset=utf-8"); 
+              return  TypedResults.Content(dashboardService.DashboardData(route), "text/html; charset=utf-8"); 
             });
 
             routeGroup.MapGet("/delete", async (HttpContext context, ICacheService cacheService) =>
@@ -54,6 +55,8 @@ namespace BlazorImage.Extensions
 
             return app;
         }
+
+
     }
 
 }

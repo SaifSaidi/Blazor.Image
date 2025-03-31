@@ -6,10 +6,10 @@
     @if (RendererInfo.IsInteractive)
     {
         <button type="button"
-                class="info-toggle"
-                aria-label="Show Image Info Popup"
-                aria-expanded="@_showDetails.ToString().ToLower()"
-                @onclick="ToggleDetails">
+        class="info-toggle"
+        aria-label="Show Image Info Popup"
+        aria-expanded="@_showDetails.ToString().ToLower()"
+        @onclick="ToggleDetails">
             <span class="info-icon">ℹ️</span>
         </button>
         @if (_showDetails)
@@ -21,10 +21,10 @@
     else
     {
         <button type="button"
-                class="info-toggle"
-                aria-label="Show Image Info Popup"
-                aria-expanded="@_showDetails.ToString().ToLower()"
-                onclick="toggleDeveloperInfo(this)">
+        class="info-toggle"
+        aria-label="Show Image Info Popup"
+        aria-expanded="@_showDetails.ToString().ToLower()"
+        onclick="toggleDeveloperInfo(this)">
             <span class="info-icon">ℹ️</span>
         </button>
         <div class="developer-info-popup-overlay" onclick="closeDeveloperInfo(this)"></div>
@@ -51,11 +51,11 @@
         _showDetails = false;
     }
 
-     private string GetImageProccessOutputDir(string fileName)
-            {
-                var path = FileService.GetRootPath(Path.Combine(Options.Value.Dir, fileName));
-                return path;
-            }
+    private string GetImageProccessOutputDir(string fileName)
+    {
+        var path = FileService.GetRootPath(Path.Combine(Options.Value.Dir, fileName));
+        return path;
+    }
 
     private string FileSizeDisplay => FileService.GetFileSizeInKb(ImageComponent.Src) + " kb";
     private string QualityDisplay => ImageComponent.Quality?.ToString() ?? Options.Value.DefaultQuality.ToString();
@@ -68,9 +68,20 @@
         <div class="@($"developer-info-popup {(RendererInfo.IsInteractive && _showDetails ? "show" : "")}")">
             <div class="popup-header">
                 <h6 class="info-header">Image Optimization Details</h6>
+                @if (RendererInfo.IsInteractive)
+                {
+                    
                 <button type="button" class="close-button" aria-label="Close Image Info" @onclick="ClosePopup">
                     <span aria-hidden="true">×</span> @* Close icon *@
                 </button>
+                }
+                else
+                {
+
+                    <button type="button" class="close-button" aria-label="Close Image Info" onclick="closeDeveloperInfo(this)">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                }
             </div>
 
             <ul class="developer-info-list">

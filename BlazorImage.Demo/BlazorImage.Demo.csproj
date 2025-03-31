@@ -6,28 +6,12 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Content Remove="wwwroot\icon.png" />
-  </ItemGroup>
 
   
  
   <ItemGroup>
-    <None Include="wwwroot\icon.png">
-      <PackagePath>\</PackagePath>
-      <Pack>True</Pack>
-    </None>
+    <ProjectReference Include="..\BlazorImage\BlazorImage.csproj" />
   </ItemGroup>
-
-  
- 
-  <ItemGroup>
-    <PackageReference Include="BlazorImage" Version="1.0.1" />
-  </ItemGroup>
- 
-   
-  
-	 
-
+	
   
 </Project>

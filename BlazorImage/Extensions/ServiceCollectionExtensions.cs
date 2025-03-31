@@ -23,11 +23,22 @@ namespace BlazorImage.Extensions
     /// <example>
     /// Example usage:
     /// <code>
+    /// <example>
+    /// Example usage:
+    /// <code>
     /// builder.Services.AddBlazorImage(config =>
     /// {
     ///     config.DefaultQuality = 80; 
-    ///     config.Dir = "path/to" 
+    ///     config.Dir = "path/to";
+    ///     config.DefaultFileFormat = FileFormat.jpeg;
+    ///     config.ConfigSizes = new int[] { 100, 200, 300 };
+    ///     config.AspectWidth = 16;
+    ///     config.AspectHeigth = 9;
+    ///     config.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(24);
+    ///     config.SlidingExpiration = TimeSpan.FromHours(1);
     /// });
+    /// </code>
+    /// </example>
     /// </code>
     /// </example>
     public static class ServiceCollectionExtensions
@@ -62,9 +73,10 @@ namespace BlazorImage.Extensions
             });
             services.TryAddSingleton<IFileService, FileService>();
             services.TryAddSingleton<ICacheService, CacheService>();
+            services.TryAddSingleton<IDashboardService, DashboardService>();
             services.TryAddSingleton<IImageProcessingService, ImageProcessingService>();
             services.TryAddSingleton<IImageElementService, ImageElementService>();
-            services.TryAddScoped<IBlazorImageService, BlazorImageService>();
+            services.TryAddSingleton<IBlazorImageService, BlazorImageService>();
 
              services.AddSingleton<DictionaryCacheDataService>();
 
@@ -90,8 +102,7 @@ namespace BlazorImage.Extensions
         }
     }
 
-    // Hosted service to handle directory initialization after DI is built
-    internal class ImageOptimizationInitializer : IHostedService
+     internal class ImageOptimizationInitializer : IHostedService
     {
         private readonly IServiceScopeFactory _scopeFactory;
 
@@ -100,7 +111,7 @@ namespace BlazorImage.Extensions
             _scopeFactory = scopeFactory;
         }
 
-        public async Task StartAsync(CancellationToken cancellationToken)
+        public Task StartAsync(CancellationToken cancellationToken)
         {
             using var scope = _scopeFactory.CreateScope();
             var fileService = scope.ServiceProvider.GetRequiredService<IFileService>();
@@ -110,9 +121,9 @@ namespace BlazorImage.Extensions
             {
 
                 fileService.EnsureDirectoriesExist(config.Dir.Trim('/'));
-                await Task.CompletedTask;
+               
             }
-            
+            return Task.CompletedTask;
         }
 
         public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
