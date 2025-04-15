@@ -12,7 +12,7 @@
 		<Description>Optimize images for lightning-fast Blazor applications — supporting static rendering and interactive server-side apps.</Description>
 		<Version>1.0.3</Version>
 		<PackageVersion>1.0.3</PackageVersion>
-		<PackageReleaseNotes>Versions 1.0.x</PackageReleaseNotes>
+		<PackageReleaseNotes>Versions 1.0.3</PackageReleaseNotes>
 		<RepositoryUrl>https://github.com/saifsaidi/BlazorImage</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<PackageReadmeFile>readme.md</PackageReadmeFile>
