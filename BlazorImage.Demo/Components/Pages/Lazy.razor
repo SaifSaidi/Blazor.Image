@@ -1,0 +1,44 @@
+﻿@page "/lazy"
+
+ <div class="container mx-auto px-4 py-12">
+      <h1 class="text-3xl font-bold mb-6">Lazy Loading (Default Behavior)</h1>
+      <p class="mb-8">
+        By default, Image component use native browser lazy loading. Images only start loading when they're
+        close to appearing in the viewport. Scroll down to see the images load as they enter the viewport.
+      </p>
+
+      <div class="space-y-96">
+        @foreach (string image in new string[] { "black-cat.jpg", "lion.jpg", "horse.jpg" })
+        {
+             <div class="border p-4 rounded-lg">
+                <h2 class="text-xl font-semibold mb-4">Image </h2>
+                <Image Src=@($"/images/{image}")
+                       Alt="Lazy loaded"
+                       Width="400"
+					   Height="400"
+                       Caption="@image"
+              CssClass="rounded-md"
+            />
+            <p class="mt-4 text-sm text-gray-600">
+              This image uses the default lazy loading behavior. It only starts loading when it's close to entering the
+              viewport.
+            </p>
+          </div>
+        }
+         
+      </div>
+
+      <div class="mt-8">
+        <h2 class="text-xl font-semibold mb-4">Code Example</h2>
+        <pre class="bg-gray-100 p-4 rounded-md overflow-x-auto">
+@("<")Image
+    Src="/example-image.jpg"
+    Alt="Lazy loaded image"
+    Width="600"
+    Height="400"
+    // No Priority prop = lazy loaded by default
+@("/>")
+        </pre>
+      </div>
+    </div>
+     

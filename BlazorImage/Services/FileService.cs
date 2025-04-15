@@ -7,20 +7,16 @@ using Microsoft.Extensions.Logging;
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
 
 namespace BlazorImage.Services;
-
-internal class FileService : IFileService
+internal sealed class FileService : IFileService
 {
     private readonly string _webRootPath;
     private readonly ILogger<FileService> _logger;
-    private static readonly char[] InvalidFileNameChars = Path.GetInvalidFileNameChars();
-
+     private static readonly HashSet<char> InvalidFileNameCharsSet = [.. Path.GetInvalidFileNameChars()];
 
     public FileService(IWebHostEnvironment env, ILogger<FileService> logger)
     {
-
         _webRootPath = env.WebRootPath;
-        _logger = logger; 
-
+        _logger = logger;
     }
 
     public string GetRootPath(string webRootRelativePath) => Path.Combine(_webRootPath, webRootRelativePath.TrimStart('/'));
@@ -80,8 +76,6 @@ internal class FileService : IFileService
             return 0.0;
         }
     }
-
-
     public string SanitizeFileName(string fileName)
     {
         if (string.IsNullOrWhiteSpace(fileName))
@@ -91,13 +85,10 @@ internal class FileService : IFileService
         var sanitized = new StringBuilder(fileName.Length);
 
         foreach (var ch in Path.GetFileNameWithoutExtension(fileName))
-            sanitized.Append(InvalidFileNameChars.Contains(ch) ? '_' : ch);
+            sanitized.Append(InvalidFileNameCharsSet.Contains(ch) ? '_' : ch);
         
 
         return sanitized.ToString();
-    } 
-
-   
-
+    }
 }
 

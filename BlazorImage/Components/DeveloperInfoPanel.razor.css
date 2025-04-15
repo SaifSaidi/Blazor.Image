@@ -1,234 +1,417 @@
-/* Developer Info Popup Styles - Corrected and Improved */
-.developer-info-container {
-    position: absolute;
-    top: 10px;
-    display: inline-block;
-    right: 10px;
+﻿.developer-info-container {
+    position: relative;
+    top: -8rem;
+    left: 1rem;
 }
 
 .info-toggle {
-    display: flex;
-    align-items: center;
-    gap: 0.5em;
-    padding: 8px 12px;
-    background-color: rgba(52, 58, 64, 1);
     color: #fff;
+    background: linear-gradient(135deg,#3b82f6 0,#2563eb 100%);
     border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     cursor: pointer;
-    border-radius: 8px;
-    font-size: 0.95rem;
-    transition: background-color 0.2s ease-in-out;
+    box-shadow: 0 4px 12px rgba(37,99,235,.5);
+    transition: .3s cubic-bezier(.4, 0, .2, 1);
+    position: relative;
+    overflow: hidden
 }
 
-    .info-toggle:hover,
+    .info-toggle::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg,rgba(255,255,255,.2) 0,rgba(255,255,255,0) 50%);
+        border-radius: 50%
+    }
+
+    .info-toggle:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(37,99,235,.6);
+        background: linear-gradient(135deg,#4f46e5 0,#3b82f6 100%)
+    }
+
+    .info-toggle:active {
+        transform: translateY(1px);
+        box-shadow: 0 2px 8px rgba(37,99,235,.4)
+    }
+
     .info-toggle:focus {
-        background-color: rgba(66, 73, 80, 1);
-        outline: none;
+        outline: 0;
+        box-shadow: 0 0 0 3px rgba(59,130,246,.5),0 4px 12px rgba(37,99,235,.5)
     }
 
 .info-icon {
-    font-size: 1em;
-    line-height: 1;
+    font-size: 1.2rem;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .2))
 }
 
-.info-text {
-    font-weight: 500;
-}
-
-/* Popup Overlay (Background) */
 .developer-info-popup-overlay {
-    display: none;
-    position: fixed; /* Cover the entire viewport */
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black overlay */
-    z-index: 10000; /* High z-index to be on top */
-    opacity: 0;
-    transition: opacity 0.3s ease-out, visibility 0.3s ease-out; /* Fade transition */
-    pointer-events: none; /* Allow clicks to pass through when hidden */
+    background-color: rgba(0,0,0,0);
+    backdrop-filter: blur(0);
+    z-index: 9999;
+    transition: .3s;
+    display: none;
+    pointer-events: none
 }
 
     .developer-info-popup-overlay.show {
-        opacity: 1; /* Fade in to be visible */
+        background-color: rgba(0,0,0,.6);
+        backdrop-filter: blur(4px);
         display: block;
-        pointer-events: auto; /* Re-enable pointer events when visible */
+        pointer-events: auto
     }
 
-
-/* Popup Container */
 .developer-info-popup {
-    position: fixed; /* Fixed position in viewport */
+    position: fixed;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%); /* Center precisely */
-    background-color: rgba(33, 37, 41, 1);
-    color: #e0e0e0;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    font-family: 'Roboto', sans-serif;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5); /* Stronger shadow for depth */
-    z-index: 10001; /* Higher z-index than overlay */
-    max-height: 90%; /* Max height to prevent viewport overflow */
-    overflow-y: auto; /* Enable scrolling within popup */
-    width: clamp(300px, 80%, 600px); /* Responsive width */
+    transform: translate(-50%,-50%) scale(.95);
     opacity: 0;
+    z-index: 10000;
+    width: clamp(320px,90%,600px);
+    max-height: 85vh;
+    overflow-y: auto;
+    background: linear-gradient(to bottom,#1e293b,#0f172a);
+    color: #e2e8f0;
+    border-radius: 16px;
+    box-shadow: 0 20px 25px -5px rgba(0,0,0,.3),0 10px 10px -5px rgba(0,0,0,.2),0 0 0 1px rgba(255,255,255,.1) inset;
+    transition: .4s cubic-bezier(.19, 1, .22, 1);
     display: none;
-    transition: opacity 0.3s ease-out, visibility 0.3s ease-out, transform 0.3s ease-out; /* Fade and scale transition */
-    transform: translate(-50%, -50%) scale(0.95); /* Slightly scaled down initially */
+    font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif
 }
 
     .developer-info-popup.show {
-        opacity: 1; /* Fade in to visible */
+        transform: translate(-50%,-50%) scale(1);
+        opacity: 1;
         display: block;
-        transform: translate(-50%, -50%) scale(1); /* Scale up to normal size */
+        animation: .4s cubic-bezier(.19,1,.22,1) popup-appear
     }
 
+@keyframes popup-appear {
+    0% {
+        transform: translate(-50%,-50%) scale(.95);
+        opacity: 0
+    }
+
+    100% {
+        transform: translate(-50%,-50%) scale(1);
+        opacity: 1
+    }
+}
 
 .popup-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 16px 20px;
+    background: rgba(15,23,42,.8);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255,255,255,.1);
+    border-radius: 16px 16px 0 0;
+    position: sticky;
+    top: 0;
+    z-index: 1
 }
 
-    .popup-header .info-header { /* Target info-header within popup-header */
-        margin-bottom: 0;
-    }
+.info-header {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0,0,0,.2);
+    letter-spacing: .01em
+}
 
 .close-button {
-    background: none;
-    color: #fff;
+    background: rgba(255,255,255,.1);
     border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-    opacity: 0.6;
-    transition: opacity 0.2s ease-in-out;
-    padding: 0;
-    line-height: 1;
-}
-
-    .close-button:hover,
-    .close-button:focus {
-        opacity: 1;
-        outline: none;
-    }
-
-
-.developer-info-popup .developer-info-details { /* Target details inside popup */
-    max-height: none; /* Allow details to expand within popup scroll */
-    overflow-y: visible; /* Disable details scroll, popup scrolls */
-    padding: 15px 20px;
-    border-radius: 0;
-    background-color: transparent; /* Transparent background within popup */
-    opacity: 1; /* Ensure details are visible */
-    visibility: visible; /* Ensure details are visible */
-    transition: none; /* No transitions for details inside popup */
-    display: block; /* Ensure block display */
-}
-
-
-/* Rest of the styles (developer-info-list, info-separator, info-value, etc.) remain the same */
-.developer-info-list {
-    list-style: none;
-    padding: 0.8rem;
-    margin: 0;
-}
-
-    .developer-info-list li {
-        line-height: 1.6;
-        margin-bottom: 0.4rem;
-    }
-
-.info-separator {
-    border-bottom: 1px dashed rgba(255, 255, 255, 0.2);
-    margin: 0.8rem 0;
-    font-style:italic
-}
-
-.info-value {
-    color: #9eceff;
-    font-family: monospace;
-    word-break: break-all;
-}
-
-.recommended-size {
-    font-weight: 600;
-    color: #b2f5ff;
-}
-
-
-.size-details {
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
     display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    font-size: 0.8rem;
-    margin-top: 0.3rem;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    color: #e2e8f0;
+    font-size: 1.2rem;
+    transition: .2s
 }
 
-.size-url {
-    font-family: monospace;
-    color: #a5d8ff;
+.info-value, .size-url {
+    font-family: ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
+    font-size: .85rem
 }
 
-.size-reduction {
-    color: #a7f3d0;
-    font-size: 0.75rem;
+.close-button:hover {
+    background: rgba(255,255,255,.2);
+    transform: rotate(90deg)
 }
 
-    .size-reduction small {
-        color: #c0c0c0;
-        font-size: 0.8em;
-        margin-left: 0.2em;
-    }
-
-.size-reduction-min {
-    color: #ff6666 !important;
-    font-size: 0.75rem;
+.close-button:focus {
+    outline: 0;
+    box-shadow: 0 0 0 2px rgba(255,255,255,.3)
 }
-
 
 .image-size-info {
-    margin: 0.6rem 0;
-    padding: 0.6rem;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 6px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(30,41,59,.5);
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 12px;
+    margin: 16px;
+    padding: 16px;
+    transition: .2s
+}
+
+.info-value, .size-label code {
+    background: rgba(15,23,42,.6)
+}
+
+.image-size-info:hover {
+    background: rgba(30,41,59,.7);
+    border-color: rgba(255,255,255,.15);
+    box-shadow: 0 4px 12px rgba(0,0,0,.1)
 }
 
 .size-header {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 0.4rem;
-    color: #fff;
-    font-weight: 500;
-    font-size: 0.9rem;
+    align-items: center;
+    margin-bottom: 10px;
+    font-weight: 500
+}
+
+    .size-header span:first-child {
+        color: #94a3b8
+    }
+
+.info-value {
+    color: #7dd3fc;
+    padding: 4px 8px;
+    border-radius: 6px;
+    letter-spacing: .01em
+}
+
+.recommended-size {
+    color: #4ade80;
+    font-weight: 500
+}
+
+.size-details {
+    margin-top: 8px
+}
+
+.size-url {
+    color: #bae6fd;
+    word-break: break-all;
+    background: rgba(15,23,42,.4);
+    padding: 8px 12px;
+    border-radius: 8px;
+    display: block
+}
+
+.developer-info-list {
+    list-style: none;
+    padding: 0 16px 16px;
+    margin: 0
+}
+
+    .developer-info-list li {
+        margin-bottom: 12px;
+        line-height: 1.6
+    }
+
+        .developer-info-list li strong {
+            color: #94a3b8;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 4px
+        }
+
+.info-separator {
+    height: 1px;
+    background: linear-gradient(to right,rgba(255,255,255,0) 0,rgba(255,255,255,.1) 50%,rgba(255,255,255,0) 100%);
+    margin: 20px 0;
+    border: none
+}
+
+.size-reduction, .size-reduction-min {
+    display: inline-flex;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: .85rem
 }
 
 .size-label {
-    color: #b2ebf2;
-    font-weight: 600;
+    color: #93c5fd;
+    font-weight: 600
+}
+
+    .size-label code {
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: .8rem;
+        margin-left: 4px
+    }
+
+.size-reduction {
+    align-items: center;
+    background: rgba(16,185,129,.2);
+    color: #6ee7b7;
+    margin-left: 8px;
+    animation: 2s infinite pulse
+}
+
+    .size-reduction strong, .size-reduction-min strong {
+        color: inherit;
+        font-weight: 600
+    }
+
+.size-reduction-min {
+    align-items: center;
+    background: rgba(239,68,68,.2);
+    color: #fca5a5
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(16,185,129,.4)
+    }
+
+    70% {
+        box-shadow: 0 0 0 6px rgba(16,185,129,0)
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(16,185,129,0)
+    }
 }
 
 .attributes-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill,minmax(180px,1fr));
+    gap: 8px;
+    margin-top: 12px;
     list-style: none;
-    padding-left: 0;
-    margin-top: 0.3rem;
+    padding: 0
 }
 
     .attributes-list li {
-        margin-bottom: 0.2rem;
-        font-size: 0.8rem;
+        background: rgba(30,41,59,.5);
+        border-radius: 8px;
+        padding: 10px 12px;
+        margin-bottom: 0;
+        transition: .2s
     }
 
+        .attributes-list li:hover {
+            background: rgba(30,41,59,.7);
+            transform: translateY(-2px)
+        }
+
 .attribute-key {
-    font-weight: bold;
-    color: #ddd;
+    color: #cbd5e1;
+    font-weight: 600;
+    font-size: .85rem;
+    display: block;
+    margin-bottom: 4px
+}
+
+.attribute-value, code {
+    background: rgba(15,23,42,.6);
+    color: #7dd3fc;
+    font-family: ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace
 }
 
 .attribute-value {
-    font-family: monospace;
-    color: #eee;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: .8rem;
+    word-break: break-all;
+    display: block
+}
+
+.developer-info-popup::-webkit-scrollbar {
+    width: 8px
+}
+
+.developer-info-popup::-webkit-scrollbar-track {
+    background: rgba(15,23,42,.6);
+    border-radius: 0 16px 16px 0
+}
+
+.developer-info-popup::-webkit-scrollbar-thumb {
+    background: rgba(148,163,184,.3);
+    border-radius: 4px
+}
+
+    .developer-info-popup::-webkit-scrollbar-thumb:hover {
+        background: rgba(148,163,184,.5)
+    }
+
+code {
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: .85rem
+}
+
+@media (max-width:640px) {
+    .developer-info-popup {
+        width: 92%;
+        max-height: 80vh
+    }
+
+    .attributes-list {
+        grid-template-columns: 1fr
+    }
+
+    .popup-header {
+        padding: 14px 16px
+    }
+
+    .image-size-info {
+        margin: 12px;
+        padding: 12px
+    }
+
+    .developer-info-list {
+        padding: 0 12px 12px
+    }
+}
+
+@keyframes float {
+    0%,100% {
+        transform: translateY(0)
+    }
+
+    50% {
+        transform: translateY(-4px)
+    }
+}
+
+.info-toggle {
+    animation: 3s ease-in-out infinite float
+}
+
+.developer-info-popup::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 80px;
+    background: linear-gradient(to bottom,rgba(255,255,255,.05),rgba(255,255,255,0));
+    border-radius: 16px 16px 0 0;
+    pointer-events: none
 }

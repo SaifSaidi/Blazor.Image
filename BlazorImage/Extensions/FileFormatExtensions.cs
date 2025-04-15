@@ -1,5 +1,8 @@
-﻿namespace BlazorImage.Extensions
+﻿using System.Runtime.CompilerServices;
+
+namespace BlazorImage.Extensions
 {
+
     /// <summary>
     /// Represents the different image file formats supported by the image processing service.
     /// </summary>
@@ -52,19 +55,12 @@
                 _ => "image/webp"
             };
         }
-        public static string ToFileExtension(this FileFormat format)
-        {
-            return format switch
-            {
-                FileFormat.webp => "webp",
-                FileFormat.jpeg => "jpeg", // or .jpeg if you prefer the full form
-                FileFormat.png => "png",
-                FileFormat.avif => "avif",
-                _ => string.Empty
-            };
-        }
+       
+        public static readonly string[] FormatStrings = ["webp", "jpeg", "png", "avif",];
 
-         public static readonly string[] FormatStrings = [.. Enum.GetValues<FileFormat>().Select(f => f.ToString().ToLowerInvariant())];
+
+        public static string ToFileExtension(this FileFormat format) => FormatStrings[(int)format];
 
     }
+    
 }

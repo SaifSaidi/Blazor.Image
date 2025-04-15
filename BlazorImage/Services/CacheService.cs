@@ -1,36 +1,29 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
-using System.Text;
 using Microsoft.Extensions.Logging;
 using BlazorImage.Models;
 using Microsoft.AspNetCore.Hosting;
-
 using System.Runtime.CompilerServices;
 
 
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
-
 namespace BlazorImage.Services;
 
-internal class CacheService : ICacheService
+internal sealed class CacheService : ICacheService
 {
-
     private readonly IMemoryCache _cache;
-    private readonly ILogger<CacheService> _logger; 
+    private readonly ILogger<CacheService> _logger;
     private readonly SemaphoreSlim _dbSemaphore = new(1, 1);
     private readonly DictionaryCacheDataService _dictionaryCacheData;
-
     private readonly ILiteDatabase _db;
     private readonly TimeSpan AbsoluteExpirationRelativeToNowValue;
-
     private readonly TimeSpan? SlidingExpirationValue;
 
     private const string ErrorRetrievingMessage = "Error retrieving from cache or database";
     private const string ErrorSavingMessage = "Error saving to cache or database";
     private const string ErrorRemoveMessage = "Error removing from cache or database";
-     
-    private readonly string _Dir;  
-     
+    private readonly string _Dir;
+
     public CacheService(
         IMemoryCache cache,
         IOptions<BlazorImageConfig> options,
@@ -40,27 +33,27 @@ internal class CacheService : ICacheService
         ILiteDatabase db)
     {
         _cache = cache;
-        _logger = logger; 
+        _logger = logger;
         _dictionaryCacheData = dictionaryCacheData;
         _db = db;
-        
-        string dirName = options.Value.Dir.TrimStart('/'); 
-         _Dir = Path.Combine(env.WebRootPath,dirName);
+
+        string dirName = options.Value.OutputDir.TrimStart('/');
+        _Dir = Path.Combine(env.WebRootPath, dirName);
 
         AbsoluteExpirationRelativeToNowValue = options.Value.AbsoluteExpirationRelativeToNow;
         SlidingExpirationValue = options.Value.SlidingExpiration;
     }
 
-    private  MemoryCacheEntryOptions GetCacheEntryOptions()
+    private MemoryCacheEntryOptions GetCacheEntryOptions()
     {
         return new MemoryCacheEntryOptions
         {
             AbsoluteExpirationRelativeToNow = AbsoluteExpirationRelativeToNowValue,
-            SlidingExpiration = SlidingExpirationValue,
-            Size = 1  
+            SlidingExpiration = SlidingExpirationValue
         };
 
     }
+
     public async ValueTask<ImageInfo?> GetFromCacheAsync(string cacheKey)
     {
         if (_cache.TryGetValue(cacheKey, out ImageInfo? cachedInfo))
@@ -73,11 +66,11 @@ internal class CacheService : ICacheService
         try
         {
             var cachedFromDb = GetImageInfoFromDatabase(cacheKey);
-            
-             if (cachedFromDb != null)
+
+            if (cachedFromDb != null)
             {
                 _cache.Set(cacheKey, cachedFromDb, GetCacheEntryOptions());
-             } 
+            }
 
             return cachedFromDb;
         }
@@ -93,20 +86,18 @@ internal class CacheService : ICacheService
         }
     }
 
-
-
     private ImageInfo? GetImageInfoFromDatabase(string cacheKey)
-    {  
+    {
 
-        var collection = _db.GetCollection<ImageInfo>(Constants.LiteDbCollection); 
+        var collection = _db.GetCollection<ImageInfo>(Constants.LiteDbCollection);
         var cachedFromDb = collection.FindById(cacheKey);
-         
+
         return cachedFromDb;
     }
 
     public async ValueTask<ImageInfo?> SaveToCacheAsync(string cacheKey, ImageInfo imageInfo)
     {
-         if (string.IsNullOrEmpty(cacheKey))
+        if (string.IsNullOrEmpty(cacheKey))
         {
             throw new ArgumentException("Cache key cannot be null or empty.", nameof(cacheKey));
         }
@@ -118,8 +109,8 @@ internal class CacheService : ICacheService
 
         _cache.Set(cacheKey, new ImageInfo(imageInfo.SanitizedName, imageInfo.Width,
             imageInfo.Height, imageInfo.Format, imageInfo.Quality)
-        {   
-            Key = cacheKey,  
+        {
+            Key = cacheKey,
         }, GetCacheEntryOptions());
 
         _logger.LogDebug("Image info saved to memory cache for key: {CacheKey}", cacheKey); // Added logging for memory cache save
@@ -150,19 +141,17 @@ internal class CacheService : ICacheService
         imageInfo.ProcessedTime = DateTime.UtcNow;
         var collection = _db.GetCollection<ImageInfo>(Constants.LiteDbCollection);
 
-        collection.EnsureIndex(x => x.Key, true); 
-     
+        collection.EnsureIndex(x => x.Key, true);
+
         collection.Upsert(imageInfo);
 
         _logger.LogDebug("Image info saved to database for key: {CacheKey}", cacheKey); // Added logging for DB save
         return imageInfo;
     }
 
- 
-
     public async Task DeleteFromCacheAsync(string cacheKey)
     {
-         if (string.IsNullOrEmpty(cacheKey))
+        if (string.IsNullOrEmpty(cacheKey))
         {
             throw new ArgumentException("Cache key cannot be null or empty.", nameof(cacheKey));
         }
@@ -173,7 +162,7 @@ internal class CacheService : ICacheService
         await _dbSemaphore.WaitAsync();
         try
         {
-              DeleteImageInfoFromDatabase(cacheKey);
+            DeleteImageInfoFromDatabase(cacheKey);
         }
         catch (Exception ex)
         {
@@ -192,7 +181,7 @@ internal class CacheService : ICacheService
 
         collection.Delete(cacheKey);
         _logger.LogDebug("Removed key: {CacheKey} from database.", cacheKey); // Added logging for DB removal
-     }
+    }
 
     public void HardResetAllFromCache()
     {
@@ -214,7 +203,7 @@ internal class CacheService : ICacheService
     {
 
         var collection = _db.GetCollection<ImageInfo>(Constants.LiteDbCollection);
- 
+
         // Recreate the LiteDB file
         collection.DeleteAll();
         collection.EnsureIndex(x => x.Key, true);
@@ -256,7 +245,7 @@ internal class CacheService : ICacheService
             _logger.LogWarning("Cache is not MemoryCache, compaction skipped."); // Added logging if cache is not MemoryCache
         }
     }
-     
+
 
     public async Task ResetAllFromCacheAsync()
     {
@@ -267,7 +256,7 @@ internal class CacheService : ICacheService
 
             await _dbSemaphore.WaitAsync();
             ResetDatabaseAndDictionaryCache();
-         }
+        }
         finally
         {
             _dbSemaphore.Release();
@@ -283,7 +272,7 @@ internal class CacheService : ICacheService
         if (collection != null)
         {
             collection.DeleteAll();
-           
+
             _logger.LogDebug("All ImageInfo deleted from database."); // Added logging for DB DeleteAll
         }
         else

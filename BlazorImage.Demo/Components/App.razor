@@ -5,64 +5,18 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <base href="/" /> 
-    <link rel="stylesheet" href="@Assets["BlazorImage.Demo.styles.css"]" />
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-          theme: {
-            extend: {
-              colors: {
-                primary: '#3b82f6',
-                secondary: '#f3f4f6',
-              }
-            }
-          }
-        }
-    </script>
-    <style type="text/tailwindcss">
-        .image-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 4px;
-        }
 
-        @@layer utilities {
-            .aspect-video {
-                aspect-ratio: 16 / 9;
-            }
-
-            .aspect-square {
-                aspect-ratio: 1 / 1;
-            }
-
-            .aspect-portrait {
-                aspect-ratio: 3 / 4;
-            }
-        }
-    </style>
-    <style>
-        .lazy-container {
-            min-height: 200px; /* Adjust as needed */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: #f0f0f0;
-        }
-
-        .loading-spinner {
-            font-size: 1.2rem;
-            color: #888;
-        }</style>
-      <ImportMap />
+    <link rel="stylesheet" href="@Assets["BlazorImage.Demo.styles.css"]" />
+    <ImportMap />
     <link rel="icon" type="image/png" href="icon.png" />
     <HeadOutlet />
 </head>
 
 <body>
     <Routes />
-    <script src="_framework/blazor.web.js"></script>
-    <script src="_content/BlazorImage/BlazorImage.min.js"></script>
-   
+     <script src="_framework/blazor.web.js"></script>
+     <script src="_content/BlazorImage/BlazorImage.min.js"></script>   
 </body>
 
 </html>

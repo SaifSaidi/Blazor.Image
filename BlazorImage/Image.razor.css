@@ -1,128 +1,245 @@
+.loading-spinner, img {
+    box-sizing: border-box
+}
 
-.img-container {
-    position: relative;
+.loading-spinner, figure.fill-mode figcaption {
+    z-index: 1;
     width: 100%;
-    display: block;
-    background-color: #f0f7ff;
-    overflow: hidden;
-    margin: 0;
-}
-
-    .img-container img {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        object-fit: cover; /* Ensures the image covers the container */
-    }
-
-/* Reserve space for images to prevent layout shifts */
-img[loading="eager"] {
-    content-visibility: auto;
-    contain-intrinsic-size: 100vw auto;
-}
-
-/* Blue-themed shimmer animation */
-@keyframes shimmer {
-    to {
-        background-position: -200% 0;
-    }
-}
- 
-._blazor_lazy_load {
-    filter: blur(8px);
-    will-change: transform;
-    transition: filter 0.3s ease-out;
-    background-color: transparent;
-}
-
-    ._blazor_lazy_load.blazorlazyloaded {
-        filter: none
-    }
-
- 
-.loading-spinner {
-    display: flex;
-    align-items: center;
     position: absolute;
-    top: 0; 
-    background: linear-gradient(to right, #0062e6, #33a1fd);
-    color: white;
+    left: 0
+}
+
+img[loading=eager] {
+    contain-intrinsic-size: auto 300px;
+    content-visibility: auto
+}
+
+._plachoder_lazy_load {
+    filter: blur(9px);
+    transition: filter .3s cubic-bezier(.4, 0, .2, 1),opacity .3s cubic-bezier(.4, 0, .2, 1);
+    will-change: filter,opacity;
+    display: inline-block;
+    image-rendering: auto;
+    transform: translateZ(0);
+    aspect-ratio: var(--img-aspect-ratio,16/9)
+}
+
+.blazorlazyloaded {
+    filter: blur(0);
+    opacity: 1
+}
+
+figure.fixed-mode {
+    max-width: 100%;
+    height: auto;
+    contain: content
+}
+
+figure.fill-mode {
+    max-width: 100%;
     width: 100%;
-    padding: 5px;
+    height: 100%;
+    contain: content;
+    overflow: hidden
+}
+
+    figure.fill-mode figcaption {
+        bottom: 0;
+        background-color: #fff
+    }
+
+img {
+    color: #0000;
+    backface-visibility: hidden;
+    display: block;
+    transform: translateZ(0)
+}
+
+figure.fill-mode img, figure.fixed-mode img {
+    width: 100%;
+    height: 100%;
+    aspect-ratio: var(--img-aspect-ratio,16/9)
+}
+
+.image-error-placeholder, .loading-placeholder {
+    color: #4b5563;
+    text-align: center;
+    background-color: #f5f7fa;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-size: .875rem;
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg,#f5f7fa 0,#e0e8f0 50%,#f5f7fa 100%);
+    background-size: 200% 100%;
+    animation: 2s ease-in-out infinite shimmer;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,.05);
+    border-radius: 4px
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: 100% 0
+    }
+
+    100% {
+        background-position: -100% 0
+    }
+}
+
+.error-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: .75rem;
+    background-color: #fef2f2;
+    color: #dc2626;
+    border: 1px solid rgba(220,38,38,.2);
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.05)
+}
+
+    .error-message img.lazyload-error {
+        max-width: 80px;
+        margin-bottom: .5rem;
+        opacity: .8
+    }
+
+.loading-spinner {
+    color: #fff;
+    backdrop-filter: blur(4px);
+    background: linear-gradient(90deg,#0062e6 0,#33a1fd 100%);
     border-radius: 4px 4px 0 0;
+    align-items: center;
+    padding: .5rem;
+    display: flex;
+    top: 0;
+    animation: .3s ease-out fadeIn;
+    box-shadow: 0 1px 3px rgba(0,0,0,.1)
 }
 
 .spinner-border {
-    width: 1rem;
-    height: 1rem;
-    margin-right: 8px;
+    border: .2em solid;
+    border-right-color: transparent;
     border-radius: 50%;
-    background: conic-gradient(transparent 0%, transparent 25%, #ffffff 25%, #ffffff 100%);
-    animation: spinner-rotate 1s linear infinite;
-    box-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+    flex-shrink: 0;
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-right: .5rem;
+    animation: .8s cubic-bezier(.55,.15,.45,.85) infinite spinner-rotate
 }
 
 @keyframes spinner-rotate {
     to {
-        transform: rotate(360deg);
+        transform: rotate(360deg)
     }
 }
 
-/* Added subtle blue pulse animation for loaded images */
-@keyframes blue-pulse {
-    0% {
-        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+@keyframes fadeIn {
+    from {
+        opacity: 0
     }
 
-    70% {
-        box-shadow: 0 0 0 6px rgba(59, 130, 246, 0);
-    }
-
-    100% {
-        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+    to {
+        opacity: 1
     }
 }
 
-/* Apply pulse animation when image is loaded */
-._blazor_lazy_load.blazorlazyloaded:hover {
-    animation: blue-pulse 1.5s ease-in-out;
+.default-caption {
+    color: #3b5998;
+    background: linear-gradient(90deg,rgba(59,130,246,.05) 0,transparent 100%);
+    border-left: 2px solid #4285f4;
+    margin-block-start: 0.5rem;
+    padding: .25rem .5rem;
+    font-size: clamp(.875rem, 2vw, 1rem);
+    line-height: 1.4;
+    border-radius: 0 4px 4px 0
 }
 
-/* Error message styling */
-.error-message {
-    padding: 0.75rem 1rem;
-    margin-top: 0.5rem;
-    border: 1px solid #dbeafe;
-    border-left: 3px solid #2563eb;
-    word-wrap: break-word;
-    color: #1e40af;
-    border-radius: 0.25rem;
-    background-color: #eff6ff;
-    box-shadow: 0 1px 2px rgba(37, 99, 235, 0.1);
-}
-
-@media (prefers-reduced-motion: reduce) {
-    ._blazor_lazy_load,
-    .default-caption,
-    .spinner-border {
-        transition: none !important;
-        animation: none !important;
+@media (prefers-color-scheme:dark) {
+    .lazyload-error {
+        --ll-error-bg: #1f2937;
+        --ll-error-pattern: #374151;
+        --ll-error-icon: #6b7280
     }
-    ._blazor_lazy_load.placeholder {
-        background: #f0f7ff;
-    }
-}
 
-@media (max-width: 576px) {
+    .image-error-placeholder, .loading-placeholder {
+        color: #e5e7eb;
+        background-color: #1f2937;
+        background: linear-gradient(90deg,#1f2937 0,#374151 50%,#1f2937 100%)
+    }
+
+    .error-message {
+        background-color: rgba(220,38,38,.1);
+        color: #ef4444;
+        border-color: rgba(220,38,38,.3)
+    }
+
     .default-caption {
-        font-size: 0.8rem;
-        padding: 0.4em;
+        color: #60a5fa;
+        background: linear-gradient(90deg,rgba(59,130,246,.1) 0,transparent 100%);
+        border-left-color: #60a5fa
+    }
+}
+
+@media (prefers-reduced-motion:reduce) {
+    .image-error-placeholder, .loading-placeholder {
+        animation: none;
+        background: #f5f7fa
     }
 
     .spinner-border {
-        width: 0.2rem;
-        height: 0.2rem;
+        animation-duration: 1.5s
+    }
+
+    ._plachoder_lazy_load, .blazorlazyloaded {
+        transition-duration: .1s
+    }
+
+    @media (prefers-color-scheme:dark) {
+        .image-error-placeholder, .loading-placeholder {
+            background: #1f2937
+        }
+    }
+}
+
+@media (max-width:576px) {
+    .spinner-border {
+        width: 1rem;
+        height: 1rem
+    }
+
+    .loading-spinner {
+        padding: .375rem
+    }
+
+    .error-message {
+        padding: .5rem;
+        font-size: .8125rem
+    }
+
+        .error-message img.lazyload-error {
+            max-width: 60px;
+            margin-bottom: .375rem
+        }
+}
+
+@media (min-resolution:2dppx) {
+    ._plachoder_lazy_load {
+        image-rendering: crisp-edges
+    }
+}
+
+@media print {
+    ._plachoder_lazy_load {
+        filter: none !important
+    }
+
+    .image-error-placeholder, .loading-placeholder, .loading-spinner {
+        display: none !important
     }
 }
