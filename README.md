@@ -3,7 +3,7 @@
 [![NuGet version (BlazorImage)](https://img.shields.io/nuget/v/BlazorImage.svg?style=flat-square)](https://www.nuget.org/packages/BlazorImage/)  [![NuGet downloads (BlazorImage)](https://img.shields.io/nuget/dt/BlazorImage.svg?style=flat-square)](https://www.nuget.org/packages/BlazorImage/)
 ## BlazorImage: Image Optimization for Blazor
 
-Automatically optimize images used in <a href='https://dotnet.microsoft.com/en-us/apps/aspnet/web-apps/blazor'> Blazor </a> projects (jpeg, png, webp and avif).
+Automatically optimize images used in <a href='https://dotnet.microsoft.com/en-us/apps/aspnet/web-apps/blazor'>Blazor</a> projects (jpeg, png, webp and avif).
 
 ## Features
 
