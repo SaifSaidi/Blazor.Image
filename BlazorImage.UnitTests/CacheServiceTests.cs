@@ -34,7 +34,7 @@ namespace BlazorImage.UnitTests
             _mockDictionaryCacheData = new Mock<DictionaryCacheDataService>();
 
             // Setup mock options
-            _mockOptions.Setup(o => o.Value).Returns(new BlazorImageConfig { Dir = "testDir" });
+            _mockOptions.Setup(o => o.Value).Returns(new BlazorImageConfig { OutputDir = "testDir" });
 
             // Setup mock web host environment
             _mockWebHostEnvironment.Setup(e => e.WebRootPath).Returns("wwwroot");

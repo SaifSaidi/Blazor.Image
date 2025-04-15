@@ -5,8 +5,7 @@
         int? Width,
         int? Height,
         FileFormat? Format,
-        int? Quality 
-        )
+        int? Quality)
     {
         [BsonId]
         public string Key { get; set; } = default!;

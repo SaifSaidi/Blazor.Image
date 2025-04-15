@@ -1,0 +1,46 @@
+﻿@page "/priority"
+ 
+<div class="container mx-auto px-4 py-12">
+    <h1 class="text-3xl font-bold mb-6">Priority (Eager) Loading</h1>
+    <p class="mb-8">
+        The `Priority` tells BlazorImage to eagerly load this image, making it a high priority.<br/>
+        This is
+        useful for above-the-fold images that are visible immediately when the page loads, like hero images or product
+        images on a product page.
+    </p>
+
+    <div class="border max-w-5xl p-4 mx-auto ">
+        <Image Src="/images/photo.jpeg"
+               Alt="Priority loaded image"
+               Width="1200"
+               Height="600"
+               Priority="true" 
+               Caption="Priority (Eager) Loading"
+               EnableDeveloperMode="true" />
+
+      
+    </div>
+    <div class="mt-4 text-sm text-gray-600">
+        <p class="font-medium">When to use priority:</p>
+        <ul class="list-disc pl-5 mt-2">
+            <li>For the largest image visible within the viewport when the page loads</li>
+            <li>For any image that is critical to the user experience</li>
+            <li>For images that are above-the-fold</li>
+            <li>Typically only needed for 1-3 images per page</li>
+        </ul>
+    </div>
+    <div class="mt-8">
+        <h2 class="text-xl font-semibold mb-4">Code Example</h2>
+        <pre class="bg-gray-100 p-4 rounded-md overflow-x-auto">
+
+<code>
+@("<")Image Src="/hero-image.jpg"
+        Alt="Hero image"
+        Width=1200
+        Height=600
+        Priority="true" // Priority is false by default
+@("/>")
+</code>
+        </pre>
+    </div>
+</div>

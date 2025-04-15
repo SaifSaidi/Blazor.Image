@@ -1,0 +1,108 @@
+﻿@page "/interactive-state"
+@rendermode @(new InteractiveServerRenderMode(false))
+
+<div class="container mx-auto p-4">
+    <h1 class="text-2xl font-bold mb-4">Interactive Image Demo</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="border rounded-lg p-4 bg-white shadow-sm">
+            <h2 class="text-lg font-semibold mb-3">Image Preview</h2>
+            <div class="relative aspect-square overflow-hidden rounded-md bg-gray-100">
+            <Image Src="@imageSrc"
+                Alt="@imageAlt"
+                Fill="true"
+                Quality="@quality"
+                EnableDeveloperMode="true"
+                EnableInteractiveState="true"/>
+            </div>
+        </div>
+
+        <div class="border rounded-lg p-4 bg-white shadow-sm">
+            <h2 class="text-lg font-semibold mb-3">Image Controls</h2>
+
+            <div class="mb-4">
+                <h3 class="text-md font-medium mb-2">Image Selection</h3>
+                <div class="flex flex-wrap gap-2">
+                    <button @onclick='() => ChangeImage("/images/black-cat.jpg", "Black cat")'
+                    class="@GetButtonClass(imageSrc == "/images/black-cat.jpg")">
+                        <span class="@(imageSrc == "/images/black-cat.jpg" ? "font-bold" : "")">Cat</span>
+                    </button>
+                    <button @onclick='() => ChangeImage("/images/horse.jpg", "horse")'
+                    class="@GetButtonClass(imageSrc == "/images/horse.jpg")">
+                        <span class="@(imageSrc == "/images/horse.jpg" ? "font-bold" : "")">horse</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <h3 class="text-md font-medium mb-2">Quality Control: @quality%</h3>
+                <div class="flex items-center gap-3">
+                    <button @onclick="DecreaseQuality"
+                    aria-label="Decrease quality"
+                    class="px-3 py-1 bg-gray-200 rounded disabled:opacity-50">
+                        -
+                    </button>
+
+                    <div class="flex-1 bg-gray-200 h-2 rounded-full overflow-hidden">
+                        <div class="bg-blue-500 h-full" style="width: @(quality)%"></div>
+                    </div>
+
+                    <button @onclick="IncreaseQuality"
+                    disabled="@(quality >= MaxQuality)"
+                    aria-label="Increase quality"
+                    class="px-3 py-1 bg-gray-200 rounded disabled:opacity-50">
+                        +
+                    </button>
+                </div>
+            </div>
+
+
+            <div class="mt-8">
+                <h2 class="text-xl font-semibold mb-4">Code Example</h2>
+                <pre class="bg-gray-100 p-4 rounded-md overflow-x-auto">
+@("<")Image
+    Src="/example-image.jpg"
+    Alt="Enable Interactive State Image"
+    Width="600"
+    Height="400"
+    EnableInteractiveState="true" // add this (work with interactive mode render)
+@("/>")
+        </pre>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private int quality = 75;
+    private string imageSrc = "/images/black-cat.jpg";
+    private string imageAlt = "Black cat";
+
+    private const int QualityStep = 20;
+
+    private const int MaxQuality = 100;
+
+    private void ChangeImage(string src, string alt)
+    {
+        imageSrc = src;
+        imageAlt = alt;
+    }
+
+    private void IncreaseQuality()
+    {
+        if (quality < MaxQuality)
+        {
+            quality = Math.Min(quality + QualityStep, MaxQuality);
+        }
+    }
+
+    private void DecreaseQuality()
+    {
+
+        quality = quality - QualityStep;
+    }
+
+    private string GetButtonClass(bool isActive) => isActive
+        ? "px-4 py-2 bg-blue-500 text-white rounded"
+        : "px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300";
+}

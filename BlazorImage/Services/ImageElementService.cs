@@ -1,110 +1,114 @@
-﻿using System.Collections.Concurrent;
-using System.Runtime.CompilerServices;
-using System.Text;
-using Microsoft.Extensions.ObjectPool;
+﻿using Microsoft.Extensions.ObjectPool;
 using Microsoft.Extensions.Options;
+using System.Text;
 
-namespace BlazorImage.Services;
-
-internal class ImageElementService : IImageElementService
+internal sealed class ImageElementService : IImageElementService
 {
-     private static readonly string _placeholderSuffix = "-placeholder.";
-    private static readonly string _wqSuffix = "w-q";
-
-     private const int MAX_STACK_ALLOC = 512;
-    private const int ESTIMATED_SIZE_PER_BREAKPOINT = 25;
-
+    // --- Constants ---
+    private const char PathSeparator = '/';
+    private const string PlaceholderSuffix = "-placeholder.";
+    private const string WidthQualitySuffix = "w-q";
+    private const string DefaultFallbackExtension = ".jpeg"; // Use constant for "jpeg"
+    private const string WidthDescriptorSuffix = "w";
+    private const string SourceSetSeparator = ", ";
+ 
+    // --- Configuration & Dependencies ---
     private readonly BlazorImageConfig _config;
     private readonly string _configDir;
-    private static int[]? _configSizes;
-    private readonly IFileService _fileService;
-    private readonly DictionaryCacheDataService _dictionaryCacheData;
+    private readonly int[] _configSizes;
 
-  
-     private static readonly ObjectPool<StringBuilder> _stringBuilderPool =
-        new DefaultObjectPool<StringBuilder>(new StringBuilderPooledObjectPolicy
-        {
-            InitialCapacity = 256,
-            MaximumRetainedCapacity = 4000
-        });
+    private readonly DictionaryCacheDataService _dictionaryCacheData;
+    private readonly ObjectPool<StringBuilder> _stringBuilderPool;
 
     public ImageElementService(
-        IOptions<BlazorImageConfig> config,
-        IFileService fileService,
-        DictionaryCacheDataService dictionaryCacheData)
+        IOptions<BlazorImageConfig> configOptions, 
+        DictionaryCacheDataService dictionaryCacheData,
+        ObjectPool<StringBuilder> stringBuilderPool)
     {
-        _config = config.Value;
-        _configDir = _config.Dir;
-        _configSizes = _config.ConfigSizes;
-        _fileService = fileService;
+        ArgumentNullException.ThrowIfNull(configOptions);
+        ArgumentNullException.ThrowIfNull(dictionaryCacheData);
+        ArgumentNullException.ThrowIfNull(stringBuilderPool);
+
+        _config = configOptions.Value ?? throw new ArgumentNullException(nameof(configOptions), "Configuration value cannot be null.");
+        _configDir = _config.OutputDir ?? string.Empty;
+
+        // Validate ConfigSizes - make it an instance field
+        _configSizes = _config.Sizes ?? [];
+        if (_configSizes.Length == 0)
+        {
+            Console.WriteLine("Warning: BlazorImageConfig.ConfigSizes is null or empty.");
+        }
+        
         _dictionaryCacheData = dictionaryCacheData;
+        _stringBuilderPool = stringBuilderPool;
     }
 
-    public (string source, string fallback, string placeholder) GetStaticPictureSourceWithMetadataInfo(
-        string sanitizedName, int quality, FileFormat format, int? width)
+    // --- Public Methods ---
+
+    public (string source, string fallback, string placeholder)
+        GetStaticPictureSourceWithMetadataInfo(
+            string sanitizedName, int quality, FileFormat format, int? width)
     {
-        // Create cache key
         var key = new DictionaryCacheDataService.CacheKey
         {
             SanitizedName = sanitizedName,
             Quality = quality,
             Format = format,
-            Width = width ?? -1
-        }; 
-        // Use GetOrAdd with value factory to avoid duplicate computation
-        return _dictionaryCacheData.SourceInfoCache.GetOrAdd(key, static (k, ctx) =>
+            Width = width ?? -1 // Use -1 or another sentinel for "all sizes"
+        };
+
+        // Use GetOrAdd with instance context
+        return _dictionaryCacheData.SourceInfoCache.GetOrAdd(key, static (k, instance) =>
         {
-            var (configDir, formatStrings) = ctx;
+            var fallback = instance.BuildFallbackPath(k.SanitizedName);
+            var placeholder = instance.BuildPlaceholderPath(k.SanitizedName, k.Format);
 
-            // Use a single buffer for both paths to reduce allocations
-            int maxPathLength = configDir.Length + k.SanitizedName.Length * 2 + formatStrings[(int)k.Format].Length * 2 + 30;
-            Span<char> pathBuffer = maxPathLength <= MAX_STACK_ALLOC
-                ? stackalloc char[maxPathLength]
-                : new char[maxPathLength];
-
-            // Build fallback path
-            var fallback = BuildFallbackPath(configDir, k.SanitizedName, formatStrings, pathBuffer);
-
-            // Reuse the same buffer for placeholder path
-            var placeholder = BuildPlaceholderPath(configDir, k.SanitizedName, k.Format, formatStrings, pathBuffer);
-
-            // Build source
             var source = k.Width == -1
-                ? GetSourceAsString(configDir, k.SanitizedName, k.Quality, k.Format, _configSizes)
-                : GetStaticSourceAsString(configDir, k.SanitizedName, k.Quality, k.Format, k.Width);
+                ? instance.GetSourceSetString(k.SanitizedName, k.Quality, k.Format)  
+                : instance.GetSingleSourceString(k.SanitizedName, k.Quality, k.Format, k.Width); 
 
             return (source, fallback, placeholder);
-        }, (_configDir, FileFormatExtensions.FormatStrings));
+
+        }, this); 
     }
-     
-    // Helper method to sanitize file names
-    private string SanitizeFileName(string src) => _fileService.SanitizeFileName(src);
 
-    public string GenerateImageName(string src, int width, int? quality, FileFormat? format)
+    public double GetAspectRatio()
     {
-        string sanitizedName = SanitizeFileName(src);
-        FileFormat defaultFormat = _config.DefaultFileFormat;
-        int defaultQuality = _config.DefaultQuality;
-        string formatExt = (format ?? defaultFormat).ToFileExtension();
-        int qualityValue = quality ?? defaultQuality;
+        // Avoid division by zero
+        if (_config.AspectHeigth <= 0)
+        { 
+            return 1.0; // Default aspect ratio
+        }
+        return _config.AspectWidth / _config.AspectHeigth;
+    }
 
-         var sb = _stringBuilderPool.Get();
+    // --- Private Helper Methods ---
+
+    private string GetSingleSourceString(string sanitizedName, int quality, FileFormat format, int requestedWidth)
+    {
+
+        int sizeIndex = Sizes.GetClosestSize((int)(requestedWidth * 1.5), _configSizes)  ;
+
+        int actualSize = _configSizes[sizeIndex];
+        string formatStr = format.ToString();
+ 
+        var sb = _stringBuilderPool.Get();
         try
         {
-            sb.Clear();
-            sb.EnsureCapacity(sanitizedName.Length * 2 + formatExt.Length * 2 + 20);
+            // Build URL: {dir}/{name}/{format}/{name}-{size}w-q{quality}.{format}
+            AppendPathBase(sb, sanitizedName, formatStr);
+            sb.Append(sanitizedName);
+            sb.Append('-');
+            sb.Append(actualSize); 
+            sb.Append(WidthQualitySuffix);
+            sb.Append(quality); 
+            sb.Append('.');
+            sb.Append(formatStr);
 
-            sb.Append(sanitizedName)
-              .Append('/')
-              .Append(formatExt)
-              .Append('/')
-              .Append(sanitizedName)
-              .Append('-')
-              .Append(width)
-              .Append("w-q")
-              .Append(qualityValue)
-              .Append('.')
-              .Append(formatExt);
+            // Append width descriptor: URL {size}w
+            sb.Append(' ');
+            sb.Append(actualSize);
+            sb.Append(WidthDescriptorSuffix);
 
             return sb.ToString();
         }
@@ -114,25 +118,43 @@ internal class ImageElementService : IImageElementService
         }
     }
 
-    public string GenerateImagePlaceholder(string src, FileFormat format)
-    {
-        string sanitizedName = SanitizeFileName(src);
-        string formatExt = format.ToFileExtension();
+    private string GetSourceSetString(string sanitizedName, int quality, FileFormat format)
+    { 
 
-         var sb = _stringBuilderPool.Get();
+        string formatStr = format.ToString();
+        var sb = _stringBuilderPool.Get();
         try
         {
-            sb.Clear();
-            sb.EnsureCapacity(sanitizedName.Length * 2 + formatExt.Length * 2 + 20);
+            // Estimate capacity roughly, StringBuilder handles resizing if needed.
+            // (dir + / + name + / + format + / + name + - + size + w-q + quality + . + format + space + size + w + , + space) * count
+            int estimatedCapacity = (_configDir.Length + sanitizedName.Length * 2 + formatStr.Length * 2 + WidthQualitySuffix.Length + 15) * _configSizes.Length;
+            sb.EnsureCapacity(estimatedCapacity);
 
-            sb.Append(sanitizedName)
-              .Append('/')
-              .Append(formatExt)
-              .Append('/')
-              .Append(sanitizedName)
-              .Append("-placeholder.")
-              .Append(formatExt);
+            for (int i = 0; i < _configSizes.Length; i++)
+            {
+                int size = _configSizes[i];
 
+                // Append URL: {dir}/{name}/{format}/{name}-{size}w-q{quality}.{format}
+                AppendPathBase(sb, sanitizedName, formatStr);
+                sb.Append(sanitizedName);
+                sb.Append('-');
+                sb.Append(size); // Use efficient int append
+                sb.Append(WidthQualitySuffix);
+                sb.Append(quality); // Use efficient int append
+                sb.Append('.');
+                sb.Append(formatStr);
+
+                // Append width descriptor: URL {size}w
+                sb.Append(' ');
+                sb.Append(size); // Use efficient int append
+                sb.Append(WidthDescriptorSuffix);
+
+                // Append separator
+                if (i < _configSizes.Length - 1)
+                {
+                    sb.Append(SourceSetSeparator);
+                }
+            }
             return sb.ToString();
         }
         finally
@@ -141,260 +163,42 @@ internal class ImageElementService : IImageElementService
         }
     }
 
-    public string GenerateImageFallbackSrc(string src, FileFormat format = FileFormat.jpeg)
+    // Helper to build the common part of the URL path
+    private void AppendPathBase(StringBuilder sb, string sanitizedName, string formatStr)
     {
-        string sanitizedName = SanitizeFileName(src);
-        string formatExt = format.ToFileExtension();
-
-         var sb = _stringBuilderPool.Get();
-        try
-        {
-            sb.Clear();
-            sb.EnsureCapacity(sanitizedName.Length * 2 + formatExt.Length + 10);
-
-            sb.Append(sanitizedName)
-              .Append('/')
-              .Append(sanitizedName)
-              .Append('.')
-              .Append(formatExt);
-
-            return sb.ToString();
-        }
-        finally
-        {
-            _stringBuilderPool.Return(sb);
-        }
+        // Format: {configDir}/{sanitizedName}/{format}/
+        sb.Append(_configDir);
+        sb.Append(PathSeparator);
+        sb.Append(sanitizedName);
+        sb.Append(PathSeparator);
+        sb.Append(formatStr);
+        sb.Append(PathSeparator);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static string GetStaticSourceAsString(string dir, string sanitizedName,
-        int quality, FileFormat format, int width)
-    {
-        ReadOnlySpan<int> imageSizes = _configSizes;
-        int index = Math.Min(Sizes.GetClosestSize(width, imageSizes), imageSizes.Length - 1);
-        int size = imageSizes[index];
-
-        // Format extension
-        string formatStr = format.ToString().ToLowerInvariant();
-
-        // Calculate total buffer size
-        int totalLength = dir.Length + 1 + sanitizedName.Length * 2 + formatStr.Length * 2 + 20;
-
-        // Use stack allocation for small buffers
-        Span<char> buffer = totalLength <= MAX_STACK_ALLOC ? stackalloc char[totalLength] : new char[totalLength];
-        int pos = 0;
-
-        // Build path components efficiently
-        dir.AsSpan().CopyTo(buffer.Slice(pos)); pos += dir.Length;
-        buffer[pos++] = '/';
-        sanitizedName.AsSpan().CopyTo(buffer.Slice(pos)); pos += sanitizedName.Length;
-        buffer[pos++] = '/';
-        formatStr.AsSpan().CopyTo(buffer.Slice(pos)); pos += formatStr.Length;
-        buffer[pos++] = '/';
-        sanitizedName.AsSpan().CopyTo(buffer.Slice(pos)); pos += sanitizedName.Length;
-        buffer[pos++] = '-';
-
-        // Format numbers directly into buffer
-        pos += size.TryFormat(buffer.Slice(pos), out int bytesWritten) ? bytesWritten : 0;
-
-        _wqSuffix.AsSpan().CopyTo(buffer.Slice(pos)); pos += _wqSuffix.Length;
-        pos += quality.TryFormat(buffer.Slice(pos), out bytesWritten) ? bytesWritten : 0;
-
-        buffer[pos++] = '.';
-        formatStr.AsSpan().CopyTo(buffer.Slice(pos)); pos += formatStr.Length;
-        buffer[pos++] = ' ';
-
-        // Add width descriptor
-        pos += size.TryFormat(buffer.Slice(pos), out bytesWritten) ? bytesWritten : 0;
-        buffer[pos++] = 'w';
-
-        return new string(buffer.Slice(0, pos));
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    public static string GetSourceAsString(string dir, string name, int quality, FileFormat format, ReadOnlySpan<int> sizes)
-    {
-        if (sizes.IsEmpty)
-            return string.Empty;
-
-        const int MaxNumberDigits = 4; // Up to 9999px wide
-
-        // Precompute all static components
-        var formatStr = format.ToString().ToLowerInvariant();
-        var qualityStr = quality.ToString();
-
-        // Calculate exact buffer size
-        int totalSize = CalculateSourceBufferSize(dir, name, formatStr, qualityStr, sizes.Length);
-
-        // Allocate buffer
-        var buffer = totalSize <= MAX_STACK_ALLOC ? stackalloc char[totalSize] : new char[totalSize];
-        int pos = 0;
-
-        // Format numbers directly into buffer
-        Span<char> numBuffer = stackalloc char[MaxNumberDigits];
-
-        for (int i = 0; i < sizes.Length; i++)
-        {
-            int size = sizes[i];
-
-            // Write dir
-            dir.AsSpan().CopyTo(buffer.Slice(pos));
-            pos += dir.Length;
-            buffer[pos++] = '/';
-
-            // Write name
-            name.AsSpan().CopyTo(buffer.Slice(pos));
-            pos += name.Length;
-            buffer[pos++] = '/';
-
-            // Write format
-            formatStr.AsSpan().CopyTo(buffer.Slice(pos));
-            pos += formatStr.Length;
-            buffer[pos++] = '/';
-
-            // Write name again
-            name.AsSpan().CopyTo(buffer.Slice(pos));
-            pos += name.Length;
-            buffer[pos++] = '-';
-
-            // Write size
-            int bytesWritten;
-            if (size.TryFormat(buffer.Slice(pos), out bytesWritten))
-            {
-                pos += bytesWritten;
-            }
-            else
-            {
-                var sizeStr = size.ToString();
-                sizeStr.AsSpan().CopyTo(buffer.Slice(pos));
-                pos += sizeStr.Length;
-            }
-
-            // Write w-q
-            _wqSuffix.AsSpan().CopyTo(buffer.Slice(pos));
-            pos += _wqSuffix.Length;
-
-            // Write quality
-            qualityStr.AsSpan().CopyTo(buffer.Slice(pos));
-            pos += qualityStr.Length;
-
-            // Write .format
-            buffer[pos++] = '.';
-            formatStr.AsSpan().CopyTo(buffer.Slice(pos));
-            pos += formatStr.Length;
-            buffer[pos++] = ' ';
-
-            // Write size again for width descriptor
-            if (size.TryFormat(buffer.Slice(pos), out bytesWritten))
-            {
-                pos += bytesWritten;
-            }
-            else
-            {
-                var sizeStr = size.ToString();
-                sizeStr.AsSpan().CopyTo(buffer.Slice(pos));
-                pos += sizeStr.Length;
-            }
-
-            // Write w
-            buffer[pos++] = 'w';
-
-            // Add comma if not last
-            if (i < sizes.Length - 1)
-            {
-                buffer[pos++] = ',';
-                buffer[pos++] = ' ';
-            }
-        }
-
-        return new string(buffer.Slice(0, pos));
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static int CalculateSourceBufferSize(
-        string dir,
-        string name,
-        string formatStr,
-        string qualityStr,
-        int count)
-    {
-        // Base size per entry
-        int baseSize = dir.Length + 1 + // dir/
-                      name.Length + 1 + // name/
-                      formatStr.Length + 1 + // format/
-                      name.Length + 1 + // name-
-                      _wqSuffix.Length + // w-q
-                      qualityStr.Length + 1 + // quality.
-                      formatStr.Length + 1 + // format space
-                      1; // w
-
-        // Size for all entries
-        int totalSize = baseSize * count;
-
-        // Add size for commas and spaces
-        totalSize += (count - 1) * 2; // ", " between entries
-
-        // Add size for numbers (estimate 4 digits per number, 2 numbers per entry)
-        totalSize += count * 8;
-
-        // Add 10% padding to be safe
-        return (int)(totalSize * 1.1);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static string BuildFallbackPath(string configDir, string sanitizedName,
-        string[] formatStrings, Span<char> buffer)
+    private string BuildFallbackPath(string sanitizedName)
     {
         // Format: "{configDir}/{sanitizedName}/{sanitizedName}.jpeg"
-        int pos = 0;
-
-        configDir.AsSpan().CopyTo(buffer);
-        pos += configDir.Length;
-        buffer[pos++] = '/';
-
-        sanitizedName.AsSpan().CopyTo(buffer.Slice(pos));
-        pos += sanitizedName.Length;
-        buffer[pos++] = '/';
-
-        sanitizedName.AsSpan().CopyTo(buffer.Slice(pos));
-        pos += sanitizedName.Length;
-        buffer[pos++] = '.';
-
-        "jpeg".AsSpan().CopyTo(buffer.Slice(pos));
-        pos += 4;
-
-        return new string(buffer.Slice(0, pos));
+        var sb = _stringBuilderPool.Get();
+ 
+        sb.Append(_configDir);
+            sb.Append(PathSeparator);
+            sb.Append(sanitizedName);
+            sb.Append(PathSeparator);
+            sb.Append(sanitizedName);
+            sb.Append(DefaultFallbackExtension);
+            return sb.ToString();
+        
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static string BuildPlaceholderPath(string configDir, string sanitizedName,
-        FileFormat format, string[] formatStrings, Span<char> buffer)
+    private string BuildPlaceholderPath(string sanitizedName, FileFormat format)
     {
         // Format: "{configDir}/{sanitizedName}/{format}/{sanitizedName}-placeholder.{format}"
-        int pos = 0;
-        string formatStr = formatStrings[(int)format];
-
-        configDir.AsSpan().CopyTo(buffer);
-        pos += configDir.Length;
-        buffer[pos++] = '/';
-
-        sanitizedName.AsSpan().CopyTo(buffer.Slice(pos));
-        pos += sanitizedName.Length;
-        buffer[pos++] = '/';
-
-        formatStr.AsSpan().CopyTo(buffer.Slice(pos));
-        pos += formatStr.Length;
-        buffer[pos++] = '/';
-
-        sanitizedName.AsSpan().CopyTo(buffer.Slice(pos));
-        pos += sanitizedName.Length;
-
-        _placeholderSuffix.AsSpan().CopyTo(buffer.Slice(pos));
-        pos += _placeholderSuffix.Length;
-
-        formatStr.AsSpan().CopyTo(buffer.Slice(pos));
-        pos += formatStr.Length;
-
-        return new string(buffer.Slice(0, pos));
+        string formatStr = format.ToString();
+        var sb = _stringBuilderPool.Get();
+        AppendPathBase(sb, sanitizedName, formatStr);
+        sb.Append(sanitizedName);
+        sb.Append(PlaceholderSuffix);
+        sb.Append(formatStr);
+        return sb.ToString();
     }
 }

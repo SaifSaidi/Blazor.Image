@@ -1,0 +1,118 @@
+﻿@page "/fill"
+
+<div class="container mx-auto px-4 py-12">
+    <h1 class="text-3xl font-bold mb-6">Image Fill Mode</h1>
+    <p class="mb-8">
+        The `Fill` prop allows an image to fill its parent element. This is useful for responsive layouts where you want the image to take up the full space of its
+        container.
+    </p>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div class="border p-4 rounded-lg">
+            <h2 class="text-xl font-semibold mb-4">Fill with object-cover</h2>
+            <div class="relative w-full h-100">
+                <Image Src="/images/horse.jpg"
+                       Alt="Fill image with object-cover"
+                       Fill="true"
+                       CssClass="rounded-md object-cover"
+                       Caption="Fill image with object-cover"
+                       Priority="true"
+                       EnableDeveloperMode="true"/>
+            </div>
+            <p class="mt-4 text-sm text-gray-600">
+                The image fills the container while maintaining its aspect ratio and covering the entire area. Some parts of
+                the image may be cropped.
+            </p>
+        </div>
+
+        <div class="border p-4 rounded-lg">
+            <h2 class="text-xl font-semibold mb-4">Fill with object-contain</h2>
+            <div class="relative h-80  ">
+                <Image Src="/images/horse.jpg"
+                       Alt="Fill image with object-contain"
+                       Fill="true"
+                       CssClass="rounded-md object-contain"
+                       Caption="Fill image with object-contain"
+                       Priority="true"
+                       EnableDeveloperMode="true"/>
+            </div>
+            <p class="mt-4 text-sm text-gray-600">
+                The image is contained within the container while maintaining its aspect ratio. The entire image is visible,
+                but there may be empty space.
+            </p>
+        </div>
+    </div>
+
+    <div class="mt-8">
+        <h2 class="text-xl font-semibold mb-4">Code Example</h2>
+        <pre class="bg-gray-100 p-4 rounded-md overflow-x-auto">
+        <code>
+@("<")div class="relative w-full h-100"@(">")
+    @("<")Image Src="/hero-image.jpg"
+            Alt="Fill mode image"
+		    Fill="true" // Set to true to enable fill mode
+            class="object-cover" // or object-contain
+    @("/>")
+@("</")div@(">")
+ </code>
+        </pre>
+    </div>
+</div>
+
+
+<div class="container mx-auto px-4 py-12">
+    <h1 class="text-3xl font-bold mb-6">Responsive Images</h1>
+    <p class="mb-8">
+        Using the sizes prop, you can tell browsers what size the image will be at different breakpoints. This helps the
+        browser select the right image source from the automatically generated srcSet.
+    </p>
+
+    <div class="border p-4 rounded-lg">
+        <div class="relative">
+            <Image Src="/images/sky.jpg"
+                   Alt="Responsive image"
+                   Fill="true"
+                   CssClass="rounded-md w-full h-auto" />
+        </div>
+        <div class="mt-4 text-sm text-gray-600">
+            <p class="font-medium">How the sizes prop works:</p>
+            <ul class="list-disc pl-5 mt-2">
+                <li>Defults Sizes is 100vw</li>
+                <li>Browser selects the most appropriate image source based on these sizes</li>
+            </ul>
+        </div>
+    </div>
+    <div class="border p-4 rounded-lg">
+        <div class="relative">
+            <Image Src="/images/sky.jpg"
+                   Alt="Sky"
+                   Fill="true"
+                   Sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                   CssClass="w-full h-auto"
+                   Caption="Sky Fill" />
+
+        </div>
+        <div class="mt-4 text-sm text-gray-600">
+            <p class="font-medium">How the sizes prop works:</p>
+            <ul class="list-disc pl-5 mt-2">
+                <li>On mobile (up to 640px): Image takes full width (100vw)</li>
+                <li>On tablets (640px-1024px): Image takes half the width (50vw)</li>
+                <li>On desktop (>1024px): Image takes one-third of the width (33vw)</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="mt-8">
+        <h2 class="text-xl font-semibold mb-4">Code Example</h2>
+        <pre class="bg-gray-100 p-4 rounded-md overflow-x-auto">
+@("<")Image
+      Src="/responsive-image.jpg"
+      Alt="Responsive image"
+      Width="1200"
+      Height="800"
+	  Sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" // default is 100vw
+      CssClass="w-full h-auto"
+@("/>")
+        </pre>
+    </div>
+</div>

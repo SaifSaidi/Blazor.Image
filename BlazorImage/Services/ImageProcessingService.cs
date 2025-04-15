@@ -1,4 +1,5 @@
-﻿using ImageMagick;
+﻿using System.Linq;
+using ImageMagick;
 using Microsoft.Extensions.Logging;
 
 namespace BlazorImage.Services;
@@ -8,58 +9,69 @@ internal class ImageProcessingService : IImageProcessingService
     private readonly IFileService _fileService;
     private readonly ILogger<ImageProcessingService> _logger;
 
-    public ImageProcessingService(IFileService fileService,
+    public ImageProcessingService(
+        IFileService fileService,
         ILogger<ImageProcessingService> logger)
     {
-        _fileService = fileService;
-        _logger = logger;
+        _fileService = fileService ?? throw new ArgumentNullException(nameof(fileService));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public async Task ProcessAndSaveImageAsync(string inputPath,
-             string outputPath,
-             int width,
-             int height,
-             int quality,
-             FileFormat format)
+    public async Task ProcessAndSaveImageAsync(
+        string inputPath,
+        string outputPath,
+        int width,
+        int height,
+        int quality,
+        FileFormat format)
     {
-        _logger.LogInformation("Starting image processing: InputPath={InputPath}, OutputPath={OutputPath}, Width={Width}, Height={Height}, Quality={Quality}, Format={Format}",
-            inputPath, outputPath, width, height, quality, format);
-
         try
         {
             ValidateInputParameters(inputPath, (uint)quality);
+            var magickFormat = MapToFormat(format);
 
+            using var image = new MagickImage();
+            await image.ReadAsync(inputPath);
 
-            var magickFormat = format switch
-            {
-                FileFormat.webp => MagickFormat.WebP,
-                FileFormat.jpeg => MagickFormat.Jpeg,
-                FileFormat.png => MagickFormat.Png,
-                FileFormat.avif => MagickFormat.Avif,
-
-                _ => throw new ArgumentException("Unsupported file format")
-            };
-
-            using var image = new MagickImage(inputPath);
-
-            var geometry = new MagickGeometry
+            image.Resize(new MagickGeometry
             {
                 Width = (uint)width,
                 Height = (uint)height,
                 IgnoreAspectRatio = true,
-            };
+                Greater = true
+            });
 
             image.FilterType = FilterType.Lanczos;
-            image.Resize(geometry);
-
             image.AutoOrient();
             image.Strip();
             image.ColorSpace = ColorSpace.sRGB;
-
             image.Quality = (uint)quality;
 
+            ApplyFormatSettings(image, magickFormat, quality);
 
-            switch (magickFormat)
+            await SaveImageAsync(image, outputPath);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error processing image: Input={InputPath}, Output={OutputPath}", inputPath, outputPath);
+            throw;
+        }
+    }
+
+    private static MagickFormat MapToFormat(FileFormat format) => format switch
+    {
+        FileFormat.webp => MagickFormat.WebP,
+        FileFormat.jpeg => MagickFormat.Jpeg,
+        FileFormat.png => MagickFormat.Png,
+        FileFormat.avif => MagickFormat.Avif,
+        _ => throw new ArgumentException($"Unsupported file format: {format}")
+    };
+
+    private void ApplyFormatSettings(MagickImage image, MagickFormat format, int quality)
+    {
+        try
+        {
+            switch (format)
             {
                 case MagickFormat.WebP:
                     image.Settings.SetDefine("webp:method", "6");
@@ -75,32 +87,56 @@ internal class ImageProcessingService : IImageProcessingService
                     image.Settings.ColorType = ColorType.TrueColor;
                     break;
 
+                //case MagickFormat.Png:
+                //    image.Settings.SetDefine("png:compression-level", "9");
+                //    image.Settings.SetDefine("png:filter", "adaptive");
+                //    image.SetCompression(CompressionMethod.Zip);
+                //    image.Settings.SetDefine("png:bit-depth", "auto");
+                //    image.Settings.SetDefine("png:color-type", "6");
+                //    break;
+
                 case MagickFormat.Png:
+                     
                     image.Settings.SetDefine("png:compression-level", "9");
                     image.Settings.SetDefine("png:filter", "adaptive");
-                    image.Settings.Compression = CompressionMethod.Zip;
-                    image.Settings.SetDefine("png:bit-depth", "auto");
-                    image.Settings.SetDefine("png:color-type", "6");
+                    image.Settings.SetDefine("png:bit-depth", "8");  
+                    bool applyQuantization = true; // Make this configurable or conditional if needed
+
+                    // Only quantize if the image isn't already paletted or has many colors
+                    if (applyQuantization && image.ColorType != ColorType.Palette && image.TotalColors > 256)
+                    {
+                        try
+                        {
+                             var quantizeSettings = new QuantizeSettings
+                            {
+                                Colors = 256, // Target 256 colors
+                                DitherMethod = DitherMethod.FloydSteinberg // Or NoDither, Riemersma
+                            };
+                             image.Quantize(quantizeSettings);
+                         }
+                        catch (Exception qEx)
+                        {
+                            _logger.LogWarning(qEx, "Quantization step failed for PNG, proceeding without it.");
+                        }
+                    }
+                    else if (image.ColorType == ColorType.Palette || image.TotalColors <= 256)
+                    {
+                        _logger.LogTrace("Skipping quantization for PNG as image is already paletted or has few colors.");
+                    }
+
                     break;
 
-
-                case MagickFormat.Avif: // AVIF Settings
-                    image.Settings.SetDefine("avif:speed", "0"); // 0=slowest, best quality, configurable
+                case MagickFormat.Avif:
+                     
+                    image.Settings.SetDefine("avif:speed", "0");
                     image.Settings.SetDefine("avif:format", "yuv420");
-                    image.Quality = (uint)(quality > 50 ? quality - 15 : quality); // Quality setting applies to AVIF
+                    image.Quality = (uint)Math.Clamp(quality * 0.85, 0, 100);
                     break;
-
             }
-
-            await SaveImageAsync(image, outputPath, magickFormat);
-
-            _logger.LogInformation("Image processing completed successfully: OutputPath={OutputPath}", outputPath);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error during image processing: InputPath={InputPath}, OutputPath={OutputPath}", inputPath, outputPath);
-            _logger.LogError(ex.Message);
-            throw;
+            _logger.LogWarning(ex, "Format-specific settings failed for {Format}. Proceeding with defaults.", format);
         }
     }
 
@@ -109,40 +145,14 @@ internal class ImageProcessingService : IImageProcessingService
         if (!_fileService.FileExistsInRootPath(inputPath))
             throw new FileNotFoundException("Input file not found", inputPath);
 
-        if (quality < 15 || quality > 100)
-            throw new ArgumentException("Image Quality must be greater than 15, and less than 100.");
+        if (quality < Constants.MinQuality || quality > Constants.MaxQuality)
+            throw new ArgumentOutOfRangeException(nameof(quality), "Quality must be between 15 and 100.");
     }
 
-
-    private async Task SaveImageAsync(MagickImage image, string outputPath, MagickFormat format)
+    private async Task SaveImageAsync(MagickImage image, string outputPath)
     {
-        try
-        {
-             _fileService.CreateDirectoryForFile(outputPath);
-
-
-            await image.WriteAsync(outputPath, format);
-            if (format == MagickFormat.Png || format == MagickFormat.Jpeg)
-            {
-                var file = new FileInfo(outputPath);
-                var optimizer = new ImageOptimizer
-                {
-                    OptimalCompression = true
-                };
-                if(optimizer.Compress(file))
-                {
-
-                    file.Refresh();
-                }
-            } 
-
-            _logger.LogInformation("Image saved: OutputPath={OutputPath}, Format={Format}",
-                outputPath, format);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error saving image: OutputPath={OutputPath}", outputPath);
-            throw;
-        }
+        _fileService.CreateDirectoryForFile(outputPath);
+        await image.WriteAsync(outputPath);
+        _logger.LogInformation("Image saved: Output={OutputPath}", outputPath);
     }
 }

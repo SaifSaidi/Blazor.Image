@@ -10,15 +10,15 @@
 		<Title>BlazorImage</Title>
 		<Authors>Saif Saidi (Saif Al-Saidi)</Authors>
 		<Description>Optimize images for lightning-fast Blazor applications — supporting static rendering and interactive server-side apps.</Description>
-		<Version>1.0.2</Version>
-		<PackageVersion>1.0.2</PackageVersion>
+		<Version>1.0.3</Version>
+		<PackageVersion>1.0.3</PackageVersion>
 		<PackageReleaseNotes>Versions 1.0.x</PackageReleaseNotes>
 		<RepositoryUrl>https://github.com/saifsaidi/BlazorImage</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<PackageReadmeFile>readme.md</PackageReadmeFile>
 		<PackageIcon>icon.png</PackageIcon>
 		<Copyright>Copyright © Saif Saidi (Saif Al-Saidi) 2025</Copyright>
-		<PackageTags>dotnet, blazor, image, optimize, performance</PackageTags>
+		<PackageTags>image, nuget, optimization, blazor, aspnetcore</PackageTags>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
 		<IsPackable>true</IsPackable>
@@ -27,6 +27,10 @@
 		<EmbedUntrackedSources>true</EmbedUntrackedSources>
 		<PackageProjectUrl>https://github.com/saifsaidi/BlazorImage</PackageProjectUrl>
 	</PropertyGroup>
+
+	<ItemGroup>
+	  <Content Remove="wwwroot\icon.png" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<SupportedPlatform Include="browser" />
@@ -44,6 +48,10 @@
 		<None Include="..\LICENSE.txt">
     <Pack>True</Pack>
     <PackagePath>\</PackagePath>
+		</None>
+		<None Include="wwwroot\icon.png">
+		  <PackagePath>\</PackagePath>
+		  <Pack>True</Pack>
 		</None>
 	</ItemGroup>
 	<ItemGroup>
