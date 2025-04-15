@@ -1,4 +1,4 @@
-﻿# <img src="banner.png" alt="BlazorImage library Banner" width="100%" height="auto">
+# <img src="banner.png" alt="BlazorImage library Banner" width="100%" height="auto">
 
 [![NuGet version (BlazorImage)](https://img.shields.io/nuget/v/BlazorImage.svg?style=flat-square)](https://www.nuget.org/packages/BlazorImage/)  [![NuGet downloads (BlazorImage)](https://img.shields.io/nuget/dt/BlazorImage.svg?style=flat-square)](https://www.nuget.org/packages/BlazorImage/)
 ## BlazorImage: Image Optimization for Blazor
