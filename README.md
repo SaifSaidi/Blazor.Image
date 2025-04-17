@@ -3,8 +3,7 @@
 [![NuGet version (BlazorImage)](https://img.shields.io/nuget/v/BlazorImage.svg?style=flat-square)](https://www.nuget.org/packages/BlazorImage/)
 [![NuGet downloads (BlazorImage)](https://img.shields.io/nuget/dt/BlazorImage.svg?logo=nuget&label=nuget%20downloads&color=ff5c9b)](https://www.nuget.org/packages/BlazorImage)
 
-## BlazorImage: Image Optimization for Blazor
-
+## Blazor Image
 Automatically optimize images used in <a href='https://dotnet.microsoft.com/en-us/apps/aspnet/web-apps/blazor'>Blazor</a> projects (jpeg, png, webp and avif).
 
 ## Features
@@ -18,8 +17,7 @@ Automatically optimize images used in <a href='https://dotnet.microsoft.com/en-u
 * **🗄️ Intelligent Caching:** Long-term caching with efficient revalidation ensures fresh content without re-processing.
 * **⚡ Versatile Rendering:** Supports both Static and Interactive rendering modes for maximum flexibility in your Blazor apps.
 
-
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -224,5 +222,5 @@ The `<Image>` component offers several parameters to customize its behavior:
 
 By utilizing these parameters, you can effectively manage and optimize images within your Blazor applications using the `<Image>` component.
 
-## 📑 License
-BlazorImage is licensed under the MIT License.  
+##  License
+This project is licensed under the MIT License - see the LICENSE.md file for details
