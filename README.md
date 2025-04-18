@@ -132,23 +132,24 @@ Use the `<Image>` component to render optimized, responsive, and accessible imag
 
 > **Note:** Use `CssClass` instead of `class`, and `Style` instead of `style` for all styling.
 
-| Parameter              | Type       | Description                                                                                   |
-|------------------------|------------|-----------------------------------------------------------------------------------------------|
-| `Src`                  | `string`   | **Required.** Path to the original image (local only).                                        |
-| `Alt`                  | `string`   | **Required.** Descriptive alt text for accessibility and SEO.                                |
-| `Width` / `Height`     | `int`      | Fixed dimensions (required unless `Fill=true`).                                               |
-| `Fill`                 | `bool`     | If `true`, fills container size while maintaining aspect ratio.                              |
-| `Priority`             | `bool`     | If `true`, disables lazy loading and loads image eagerly.                                     |
-| `Quality`              | `int`      | Overrides compression quality (15–100).                                                       |
-| `Format`               | `FileFormat` | Output format: `webp`, `jpeg`, `png`, or `avif`.                                           |
-| `Sizes`                | `string`   | Defines responsive image behavior for different screen widths.                                |
-| `DefaultSrc`           | `string`   | Fallback image path if `Src` fails to load.                                                   |
-| `Caption`              | `string`   | Optional caption below the image.                                                             |
-| `CaptionClass`         | `string`   | Applies a CSS class to the caption.                                                           |
-| `CssClass`             | `string`   | Adds a class to the `<img>` element. (**Do not use `class`**)                                 |
-| `Style`                | `string`   | Inline styles for the `<img>` element. (**Do not use `style`**)                               |
-| `EnableDeveloperMode`  | `bool`     | Enables dev/debug output (size info, load mode, etc.).                                        |
-| `AdditionalAttributes` | `Dictionary<string, object>` | Pass custom HTML attributes to the `<img>` element.                     |
+* **`Src`** (required): The path to the original image file. BlazorImage will handle the optimization.
+* **`Alt`** (required): Alternative text for the image, crucial for accessibility.
+* **`Fill`** (optional, boolean): If `true`, the image will try to fill its parent container while maintaining its aspect ratio. Defaults to `false`.
+* **`Width`, `Height`**: Required for fixed-size images (Fill="false"). Not used if Fill="true".
+* **`Priority`** (optional, boolean): Enables or disables lazy loading for the image. Defaults to `false`. Set to `true` for images that are immediately visible on page load.
+* **`Title`** (optional, string): The title attribute for the image.
+* **`CssClass`** (optional, string): Apply custom CSS classes to the image **(Do not use class attr)**.
+* **`Style`** (optional, string): Apply inline styles to the image **(Do not use style attr)**.
+* **`Quality`** (optional, int): The desired quality of the optimized image (15-100). Defaults to the library's configured default.
+* **`Format`** (optional, `FileFormat` enum): The desired output format for the optimized image (e.g., `FileFormat.webp`, `FileFormat.jpeg`, `FileFormat.png`, `FileFormat.avif`). Defaults to the library's configured default.
+    * *Note:* Generating **FileFormat.avif** images might require a second build or processing step in some environments
+* **`Sizes`** (optional, string): The sizes attribute for responsive images.	
+* **`Caption`** (optional, string): Text to display as a caption below the image.
+* **`CaptionClass`** (optional, string): Apply custom CSS classes to the image caption.
+* **`DefaultSrc`** (optional, string): Path to a default image to display if the original image fails to load.
+* **`EnableDeveloperMode`** (optional, boolean): Enables a developer information panel (likely for debugging).
+* **`EnableInteractiveState`** (optional, boolean): Enables interactive state for the component.
+* **`AdditionalAttributes`** (optional, Dictionary<string, object>): Allows you to pass any other HTML attributes directly to the underlying `<img>` tag.
 
 ---
 
