@@ -198,7 +198,7 @@ Use the `<Image>` component to render optimized, responsive, and accessible imag
 ```
 
 ##  License
-This project is licensed under the MIT License. See the [LICENSE.md](LICENSE.md) for full details.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE.txt) for full details.
 
 ## Keywords
 
