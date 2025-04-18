@@ -20,7 +20,7 @@ Easily deliver optimized images with a single line:
 - **Lazy Loading & Placeholders:** Improve page load speed and UX.
 - **Format Flexibility:** Choose output formats (WebP, JPEG, PNG, AVIF).
 - **Caching & Revalidation:** Long-term caching with efficient revalidation ensures fresh content without re-processing.
-- add more
+-  and more ...
 
 ## Getting Started
 
