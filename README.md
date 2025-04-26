@@ -15,12 +15,15 @@ Easily deliver optimized images with a single line:
 
 ## Features
 
-- **Optimized Images:** Compress JPEG, PNG, WebP, and AVIF images with 70–90% size reduction.
-- **Responsive Support:** Auto-generate sizes for all screen widths.
-- **Lazy Loading & Placeholders:** Improve page load speed and UX.
-- **Format Flexibility:** Choose output formats (WebP, JPEG, PNG, AVIF).
-- **Caching & Revalidation:** Long-term caching with efficient revalidation ensures fresh content without re-processing.
--  and more ...
+- **Optimized Images:** Compress JPEG, PNG, WebP, and AVIF formats with 70–90% size reduction.
+- **Lazy Loading & Placeholders:** Improve performance and perceived loading speed with lightweight placeholders.
+- **Flexible Output Formats:** Choose from WebP, JPEG, PNG, or AVIF to suit your needs.
+- **Smart Caching & Revalidation:** Efficient long-term caching with automatic revalidation—ensures images stay fresh without repeated processing.
+- **Responsive & Adaptive Support:** Define responsive sizes and aspect ratios for modern layouts.
+- **Accessibility & SEO Friendly:** Fully supports `alt` text, captions, and semantic markup.
+- **Interactive State Management:** Enable interaction-aware behavior via `EnableInteractiveState`.
+
+    ... and more
 
 ## Getting Started
 
@@ -64,24 +67,23 @@ You can further configure BlazorImage with the following options within the AddB
 ```csharp
 builder.Services.AddBlazorImage(options =>
 {
-    // Path for storing processed images. Default: "_optimized"
-    options.OutputDir = "Path"; 
+    // Output directory for optimized images (relative to wwwroot). Default: "_optimized"
+    options.OutputDir = "Path";
 
-    // Array of sizes for image configuration. Default sizes: [480, 640, 768, 1024, 1280, 1536]
-    options.Sizes = [640, 1024, 1280]; // Recommended [xs, sm, md, lg, xl, 2xl, ...] to Covers common screen widths for responsive design
+    // Responsive widths for generated image variants.
+    // Recommended: [xs, sm, md, lg, xl, 2xl, ...] to cover common breakpoints.
+    // Default: [480, 640, 768, 1024, 1280, 1536]
+    options.Sizes = [640, 1024, 1280];
 
-    // Default quality for processed images (Range: 15-100). Default value: 75
-    options.DefaultQuality = 70; // Recommended 70-80 (Good balance between quality and size)
+    // Default image quality (15–100). Lower means more compression.
+    // Default: 75 | Recommended: 70–80 (Good balance of quality and file size)
+    options.DefaultQuality = 70;
 
-    // Default file format for processed images (e.g., "webp", "jpeg"). Default: "webp"
-    options.DefaultFileFormat = FileFormat.webp; // Recommended default: FileFormat.webp (Offers superior compression and quality where supported)
-
-    // Absolute expiration time for cached images, relative to now. Default: 720 hours (30 days)
-    options.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(720); 
-
-    // Sliding expiration time for cached images. Default: null (disabled)
-    options.SlidingExpiration = null;
+    // Default image output format (jpeg, png, webp, avif).
+    // Default: webp | Recommended: FileFormat.webp (widely supported and efficient)
+    options.DefaultFileFormat = FileFormat.webp;
 });
+
 ```
 
 Map required middleware in **Program.cs**:
@@ -121,35 +123,74 @@ Enable with:
 app.MapBlazorImageDashboard("/endpoints/path");
 ```
  
-## 🖼️ `<Image>` Component
+## `<Image>` Component
 
 Use the `<Image>` component to render optimized, responsive, and accessible images:
 
 ```razor
 <Image Src="/images/sample.jpg" Alt="Descriptive alt text" Width="300" Height="200" />
 ```
-###  `<Image>` Component Parameters
+### `<Image>` Component Parameters
 
 > **Note:** Use `CssClass` instead of `class`, and `Style` instead of `style` for all styling.
 
-* **`Src`** (required): The path to the original image file. BlazorImage will handle the optimization.
-* **`Alt`** (required): Alternative text for the image, crucial for accessibility.
-* **`Fill`** (optional, boolean): If `true`, the image will try to fill its parent container while maintaining its aspect ratio. Defaults to `false`.
-* **`Width`, `Height`**: Required for fixed-size images (Fill="false"). Not used if Fill="true".
-* **`Priority`** (optional, boolean): Enables or disables lazy loading for the image. Defaults to `false`. Set to `true` for images that are immediately visible on page load.
-* **`Title`** (optional, string): The title attribute for the image.
-* **`CssClass`** (optional, string): Apply custom CSS classes to the image **(Do not use class attr)**.
-* **`Style`** (optional, string): Apply inline styles to the image **(Do not use style attr)**.
-* **`Quality`** (optional, int): The desired quality of the optimized image (15-100). Defaults to the library's configured default.
-* **`Format`** (optional, `FileFormat` enum): The desired output format for the optimized image (e.g., `FileFormat.webp`, `FileFormat.jpeg`, `FileFormat.png`, `FileFormat.avif`). Defaults to the library's configured default.
-    * *Note:* Generating **FileFormat.avif** images might require a second build or processing step in some environments
-* **`Sizes`** (optional, string): The sizes attribute for responsive images.	
-* **`Caption`** (optional, string): Text to display as a caption below the image.
-* **`CaptionClass`** (optional, string): Apply custom CSS classes to the image caption.
-* **`DefaultSrc`** (optional, string): Path to a default image to display if the original image fails to load.
-* **`EnableDeveloperMode`** (optional, boolean): Enables a developer information panel (likely for debugging).
-* **`EnableInteractiveState`** (optional, boolean): Enables interactive state for the component.
-* **`AdditionalAttributes`** (optional, Dictionary<string, object>): Allows you to pass any other HTML attributes directly to the underlying `<img>` tag.
+- **`Src`** (required):  
+  The path to the original image file. BlazorImage will handle the optimization.
+
+- **`Alt`** (required):  
+  Alternative text for the image, crucial for accessibility and SEO.
+
+- **`Fill`** (optional, `bool`):  
+  If `true`, the image fills its container while maintaining aspect ratio. Defaults to `false`.
+
+- **`Width`, `Height`** (optional, `int?`):  
+  Set fixed image dimensions in pixels.
+
+- **`Priority`** (optional, `bool`):  
+  If `true`, the image loads eagerly. Defaults to `false`.
+
+- **`DefaultSrc`** (optional, `string`):  
+  Fallback image to override the error messages.
+
+- **`Quality`** (optional, `int?`):  
+  Sets optimized image quality (15–100). Defaults to library setting.
+
+- **`Format`** (optional, `FileFormat?`):  
+  Desired image output format (`webp`, `jpeg`, `png`, `avif`, etc.).  
+  _Note: AVIF may require extra build steps in some environments._
+
+- **`Sizes`** (optional, `string`):  
+  Sets the `sizes` attribute for responsive behavior.
+
+- **`CssClass`** (optional, `string`):  
+  CSS classes to apply to the `<img>` tag.  
+  _Use this instead of `class`._
+
+- **`Style`** (optional, `string`):  
+  Inline styles for the `<img>` tag.  
+  _Use this instead of `style`._
+
+- **`Caption`** (optional, `string`):  
+  Text to display below the image.
+
+- **`CaptionClass`** (optional, `string`):  
+  CSS class for styling the caption.
+
+- **`AspectRatio`** (optional, `(int, int)`):  
+  Used when `Fill="true"` to preserve image ratio.
+
+- **`EnableDeveloperMode`** (optional, `bool`):  
+  Shows extra debugging info (developer panel).
+
+- **`EnableInteractiveState`** (optional, `bool`):  
+  Enables state interactivity for the image (e.g., loading, error state handling).
+
+- **`Id`** (optional, `string`):  
+  Custom ID for the image element. Used internally or for anchoring, preload.
+
+- **`AdditionalAttributes`** (optional):  
+  Add any additional HTML attributes via a `Dictionary<string, object>`.  
+  These are applied directly to the `<img>` element.
 
 ---
 
