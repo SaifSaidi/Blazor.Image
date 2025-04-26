@@ -56,11 +56,9 @@ namespace BlazorImage.Extensions
             };
         }
        
-        public static readonly string[] FormatStrings = ["webp", "jpeg", "png", "avif",];
-
+        public static readonly string[] FormatStrings = ["webp", "jpeg", "png", "avif"];
 
         public static string ToFileExtension(this FileFormat format) => FormatStrings[(int)format];
-
     }
     
 }
