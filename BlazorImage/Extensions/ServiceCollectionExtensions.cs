@@ -27,10 +27,6 @@ namespace BlazorImage.Extensions
     ///     config.ConfigSizes = [480, 640, 1024, 1200, ....];
     ///     config.DefaultQuality = 80; 
     ///     config.DefaultFileFormat = FileFormat.jpeg;
-    ///     config.AspectWidth = 4.0;
-    ///     config.AspectHeigth = 3.0;
-    ///     config.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(24);
-    ///     config.SlidingExpiration = TimeSpan.FromHours(1);
     /// });
     /// </code>
     /// </example>
@@ -38,21 +34,20 @@ namespace BlazorImage.Extensions
     /// </example>
     public static class ServiceCollectionExtensions
     {
-
         public static IServiceCollection AddBlazorImage(
             this IServiceCollection services,
             Action<BlazorImageConfig>? configureOptions = default!)
         {
- 
+
             ArgumentNullException.ThrowIfNull(services);
 
-             var config = new BlazorImageConfig();
+            var config = new BlazorImageConfig();
             configureOptions?.Invoke(config);
 
             // Normalize directory path
             config.OutputDir = config.OutputDir.Replace('\\', '/').Trim('/');
 
-             services.AddMemoryCache();
+            services.AddMemoryCache();
 
             // Add LiteDB singleton
             services.AddSingleton<ILiteDatabase>(sp =>
@@ -60,10 +55,10 @@ namespace BlazorImage.Extensions
                 var env = sp.GetRequiredService<IWebHostEnvironment>();
                 var webRootPath = env.WebRootPath;
                 var _liteDbPath = Path.Combine(webRootPath, config.OutputDir, Constants.LiteDbName);
-   
+
                 var _liteDbConnectoinString = $"Filename={_liteDbPath};Connection=shared";
                 var _db = new LiteDatabase(_liteDbConnectoinString);
-               
+
                 return _db;
             });
 
@@ -87,7 +82,7 @@ namespace BlazorImage.Extensions
             services.TryAddSingleton<IImageProcessingService, ImageProcessingService>();
             services.TryAddSingleton<IImageElementService, ImageElementService>();
             services.TryAddSingleton<IBlazorImageService, BlazorImageService>();
-            services.TryAddSingleton<IGenerateImageDataService, GenerateImageDataService>(); 
+            services.TryAddSingleton<IGenerateImageDataService, GenerateImageDataService>();
 
             services.AddSingleton<DictionaryCacheDataService>();
 
@@ -96,15 +91,11 @@ namespace BlazorImage.Extensions
 
             // Register configuration with IOptions<T>
             services.Configure<BlazorImageConfig>(options =>
-            {                
+            {
                 options.OutputDir = config.OutputDir;
                 options.Sizes = [.. config.Sizes.Order()];
                 options.DefaultQuality = config.DefaultQuality;
                 options.DefaultFileFormat = config.DefaultFileFormat;
-                options.AspectHeigth = config.AspectHeigth;
-                options.AspectWidth = config.AspectWidth;
-                options.AbsoluteExpirationRelativeToNow = config.AbsoluteExpirationRelativeToNow;
-                options.SlidingExpiration = config.SlidingExpiration;
             });
 
             services.AddSingleton<IHostedService, ImageOptimizationInitializer>();
@@ -113,7 +104,7 @@ namespace BlazorImage.Extensions
         }
     }
 
-     internal class ImageOptimizationInitializer : IHostedService
+    internal class ImageOptimizationInitializer : IHostedService
     {
         private readonly IServiceScopeFactory _scopeFactory;
 
@@ -132,7 +123,7 @@ namespace BlazorImage.Extensions
             {
 
                 fileService.EnsureDirectoriesExist(config.OutputDir.Trim('/'));
-               
+
             }
             return Task.CompletedTask;
         }

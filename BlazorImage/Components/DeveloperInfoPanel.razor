@@ -7,10 +7,10 @@
     @if (RendererInfo.IsInteractive)
     {
         <button type="button"
-        class="info-toggle"
-        aria-label="Show Image Info Popup"
-        aria-expanded="@_showDetails.ToString().ToLower()"
-        @onclick="ToggleDetails">
+                class="info-toggle"
+                aria-label="Show Image Info Popup"
+                aria-expanded="@_showDetails.ToString().ToLower()"
+                @onclick="ToggleDetails">
             <span class="info-icon">ℹ️</span>
         </button>
         @if (_showDetails)
@@ -25,9 +25,9 @@
     else
     {
         <button type="button"
-        class="info-toggle"
-        aria-label="Show Image Info Popup" 
-        onclick="toggleDeveloperInfo(this)">
+                class="info-toggle"
+                aria-label="Show Image Info Popup"
+                onclick="toggleDeveloperInfo(this)">
             <span class="info-icon">ℹ️</span>
         </button>
 
@@ -66,7 +66,7 @@
     private string QualityDisplay => ImageComponent.Quality?.ToString() ?? Options.Value.DefaultQuality.ToString();
     private string FormatDisplay => ImageComponent.Format?.ToMimeType() ?? Options.Value.DefaultFileFormat.ToMimeType();
     private string LoadingDisplay => !ImageComponent.Priority ? "lazy" : "eager";
- 
+
     private RenderFragment PopupContent => (__builder) =>
     {
         <div class="@($"developer-info-popup {(RendererInfo.IsInteractive && _showDetails ? "show" : "")}")">
@@ -77,7 +77,8 @@
                     <button type="button" class="close-button" aria-label="Close Image Info" @onclick="ClosePopup">
                         <span aria-hidden="true">×</span>
                     </button>
-                } else
+                }
+                else
                 {
 
                     <button type="button" class="close-button" aria-label="Close Image Info" onclick="closeDeveloperInfo(this)">
@@ -99,10 +100,44 @@
 
                 <div class="size-details">
                     <span class="size-url">@ImageComponent.Src</span>
-                  
+
                 </div>
             </div>
             <ul class="developer-info-list">
+
+                <li><strong>Render Mode:</strong> @RendererInfo.Name</li>
+                <li><strong>Interactive Mode:</strong> @(ImageComponent.EnableInteractiveState)</li>
+
+
+
+
+                <li class="info-separator"></li>
+                <li><strong>Quality:</strong> <span class="info-value">@QualityDisplay</span></li>
+                <li><strong>Format:</strong> <span class="info-value">@FormatDisplay</span></li>
+                <li><strong>Loading:</strong> <span class="info-value">@LoadingDisplay</span></li>
+                <li class="info-separator"></li>
+                <li><strong>Alt Text:</strong> <span class="info-value">@ImageComponent.Alt</span></li>
+                <li><strong>CSS Class:</strong> <span class="info-value">@(ImageComponent?.CssClass ?? "---")</span></li>
+                <li><strong>Width:</strong> <span class="info-value">@(ImageComponent?.Width ?? 0)</span></li>
+                <li><strong>Height:</strong> <span class="info-value">@(ImageComponent?.Height ?? 0)</span></li>
+
+                @if (ImageComponent != null && ImageComponent.AdditionalAttributes != null && ImageComponent.AdditionalAttributes.Any())
+                {
+                    <li>
+                        <strong>Additional Attributes:</strong>
+                        <ul class="attributes-list">
+                            @foreach (var attr in ImageComponent.AdditionalAttributes)
+                            {
+                                <li><span class="attribute-key">@attr.Key</span> <span class="attribute-value">@attr.Value</span></li>
+                            }
+                        </ul>
+                    </li>
+                }
+
+
+
+                <li class="info-separator"></li>
+
 
                 @foreach (var width in Options.Value.Sizes)
                 {
@@ -134,7 +169,7 @@
                                     <code>@(newSize.ToString() + "KB")</code>
 
                                     <span class="size-reduction">
-                                       <strong>@reduction% reduction 🔥</strong>
+                                        <strong>@reduction% reduction 🔥</strong>
                                     </span>
                                 }
                             </li>
@@ -142,40 +177,7 @@
                     </li>
                 }
 
-                
-                <li class="info-separator"></li>
-
-                <li><strong>Render Mode:</strong> @RendererInfo.Name</li>
-                <li><strong>Interactive Mode:</strong> @(ImageComponent.EnableInteractiveState)</li>
-               
-              
-              
-
-                <li class="info-separator"></li>
-                <li><strong>Quality:</strong> <span class="info-value">@QualityDisplay</span></li>
-                <li><strong>Format:</strong> <span class="info-value">@FormatDisplay</span></li>
-                <li><strong>Loading:</strong> <span class="info-value">@LoadingDisplay</span></li>
-                 <li class="info-separator"></li>
-                <li><strong>Alt Text:</strong> <span class="info-value">@ImageComponent.Alt</span></li>
-                <li><strong>Title:</strong> <span class="info-value">@(ImageComponent?.Title ?? "---" )</span></li>
-                <li><strong>CSS Class:</strong> <span class="info-value">@(ImageComponent?.CssClass ?? "---")</span></li> 
-                <li><strong>Width:</strong> <span class="info-value">@(ImageComponent?.Width ?? 0)</span></li>
-                <li><strong>Height:</strong> <span class="info-value">@(ImageComponent?.Height ?? 0)</span></li>
-
-                @if (ImageComponent != null && ImageComponent.AdditionalAttributes  != null && ImageComponent.AdditionalAttributes.Any())
-                {
-                    <li>
-                        <strong>Additional Attributes:</strong>
-                        <ul class="attributes-list">
-                            @foreach (var attr in ImageComponent.AdditionalAttributes)
-                            {
-                                <li><span class="attribute-key">@attr.Key</span> <span class="attribute-value">@attr.Value</span></li>
-                            }
-                        </ul>
-                    </li>
-                }
-                
-                </ul>
+            </ul>
         </div>
     };
 }

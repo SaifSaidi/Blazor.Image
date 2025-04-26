@@ -6,13 +6,15 @@ using System.Diagnostics;
 using System.Threading.Channels;
 
 namespace BlazorImage.Services;
+
 internal sealed class BlazorImageService : IBlazorImageService
 {
     private readonly ICacheService _cacheService;
     private readonly IImageProcessingService _imageProcessingService;
-     private readonly IFileService _fileService;
+    private readonly IFileService _fileService;
     private readonly IGenerateImageDataService _generateImageDataService;
     private readonly BlazorImageConfig _config;
+
     private readonly int _DefaultQuality;
     private readonly int LastWidth;
     private readonly FileFormat? _DefaultFileFormat;
@@ -21,6 +23,11 @@ internal sealed class BlazorImageService : IBlazorImageService
     private static readonly ConcurrentDictionary<string, SemaphoreSlim> _locks = new();
     private static readonly SemaphoreSlim _globalProcessingThrottle =
         new SemaphoreSlim(Environment.ProcessorCount, Environment.ProcessorCount);
+
+    // Aspect ratio for the image processing. This is used to maintain the aspect ratio of the images.
+
+    private const double AspectWidth = 4.0;
+    private const double AspectHeight = 3.0;
 
     public BlazorImageService(
         ICacheService cacheService,
@@ -43,7 +50,7 @@ internal sealed class BlazorImageService : IBlazorImageService
         _cacheService = cacheService;
         _imageProcessingService = imageProcessingService;
         _logger = logger;
-         _fileService = fileService;
+        _fileService = fileService;
         _generateImageDataService = generateImageDataService;
 
         _DefaultQuality = _config.DefaultQuality;
@@ -51,7 +58,7 @@ internal sealed class BlazorImageService : IBlazorImageService
         LastWidth = _config.Sizes[_config.Sizes.Length / 2];
     }
 
-    public async ValueTask<Result<ImageInfo>?> GetImageInfoAsync(string src, int? quality, FileFormat? format)
+    public async ValueTask<Result<ImageInfo>?> GetImageInfoAsync(string src, int? quality, FileFormat? format, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(src))
         {
@@ -217,7 +224,7 @@ internal sealed class BlazorImageService : IBlazorImageService
 
     private async ValueTask<bool> ProcessAllImageVariations(string originalPath, string src, int quality, FileFormat format, ChannelWriter<ProgressUpdate> writer)
     {
-         try
+        try
         {
             var sizes = _config.Sizes;
             var sizeTasks = new List<Task>(sizes.Length);
@@ -227,7 +234,7 @@ internal sealed class BlazorImageService : IBlazorImageService
             foreach (var size in sizes)
             {
                 var width = size;
-                var height = HelpersMethods.ToAspectRatio(width, _config.AspectWidth, _config.AspectHeigth);
+                var height = HelpersMethods.ToAspectRatio(width, AspectWidth, AspectHeight);
                 var imageName = _generateImageDataService.GenerateImageName(src, width, quality, format);
                 var outputFilePath = GetImageProccessOutputDir(imageName);
 
@@ -278,8 +285,8 @@ internal sealed class BlazorImageService : IBlazorImageService
             completedSteps += 2;
             int finalProgress = CalculateProgress(completedSteps, totalSteps);
             await writer.WriteAsync(new ProgressUpdate(finalProgress, "Placeholder and fallbacks generated."), CancellationToken.None).ConfigureAwait(false);
-             
-             return true;
+
+            return true;
         }
         catch (Exception ex)
         {
@@ -326,7 +333,7 @@ internal sealed class BlazorImageService : IBlazorImageService
         }
         _logger.LogDebug("Generating placeholder for {Src} -> {PlaceholderOutputFile}", src, placeholderOutputFile);
 
-        var placeholderHeight = HelpersMethods.ToAspectRatio(placeholderWidth, _config.AspectWidth, _config.AspectHeigth);
+        var placeholderHeight = HelpersMethods.ToAspectRatio(placeholderWidth, AspectWidth, AspectHeight);
         _fileService.CreateDirectoryForFile(placeholderOutputFile);
         await _imageProcessingService.ProcessAndSaveImageAsync(originalPath, placeholderOutputFile, placeholderWidth, placeholderHeight, Constants.PlaceholderQuality, format).ConfigureAwait(false);
     }
@@ -334,7 +341,7 @@ internal sealed class BlazorImageService : IBlazorImageService
     private async ValueTask GenerateFallbackImages(string originalPath, string src, int quality, FileFormat format)
     {
         var fallbackWidth = LastWidth;
-        var fallbackHeight = HelpersMethods.ToAspectRatio(fallbackWidth, _config.AspectWidth, _config.AspectHeigth);
+        var fallbackHeight = HelpersMethods.ToAspectRatio(fallbackWidth, AspectWidth, AspectHeight);
 
         var jpegFallbackName = _generateImageDataService.GenerateImageFallbackSrc(src, FileFormat.jpeg);
         var formatFallbackName = _generateImageDataService.GenerateImageFallbackSrc(src, format);
@@ -400,9 +407,9 @@ internal sealed class BlazorImageService : IBlazorImageService
     private ImageInfo CreateImageInfo(string src, int quality, FileFormat format, string cacheKey)
     {
         var width = LastWidth;
-        var height = HelpersMethods.ToAspectRatio(width, _config.AspectWidth, _config.AspectHeigth);
+        var height = HelpersMethods.ToAspectRatio(width, AspectWidth, AspectHeight);
         var sanitizedName = _fileService.SanitizeFileName(Path.GetFileNameWithoutExtension(src));
-         return new ImageInfo(sanitizedName, width, height, format, quality)
+        return new ImageInfo(sanitizedName, width, height, format, quality)
         {
             Key = cacheKey
         };
@@ -466,7 +473,7 @@ internal sealed class BlazorImageService : IBlazorImageService
 
             // Final check: Because we calculated the exact length, 'pos' should now equal 'buffer.Length'.
             Debug.Assert(pos == buffer.Length, "Final position does not match calculated total length.");
-        }); 
+        });
     }
-     
-  }
+
+}

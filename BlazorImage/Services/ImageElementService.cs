@@ -11,7 +11,7 @@ internal sealed class ImageElementService : IImageElementService
     private const string DefaultFallbackExtension = ".jpeg"; // Use constant for "jpeg"
     private const string WidthDescriptorSuffix = "w";
     private const string SourceSetSeparator = ", ";
- 
+
     // --- Configuration & Dependencies ---
     private readonly BlazorImageConfig _config;
     private readonly string _configDir;
@@ -21,7 +21,7 @@ internal sealed class ImageElementService : IImageElementService
     private readonly ObjectPool<StringBuilder> _stringBuilderPool;
 
     public ImageElementService(
-        IOptions<BlazorImageConfig> configOptions, 
+        IOptions<BlazorImageConfig> configOptions,
         DictionaryCacheDataService dictionaryCacheData,
         ObjectPool<StringBuilder> stringBuilderPool)
     {
@@ -38,7 +38,7 @@ internal sealed class ImageElementService : IImageElementService
         {
             Console.WriteLine("Warning: BlazorImageConfig.ConfigSizes is null or empty.");
         }
-        
+
         _dictionaryCacheData = dictionaryCacheData;
         _stringBuilderPool = stringBuilderPool;
     }
@@ -64,34 +64,25 @@ internal sealed class ImageElementService : IImageElementService
             var placeholder = instance.BuildPlaceholderPath(k.SanitizedName, k.Format);
 
             var source = k.Width == -1
-                ? instance.GetSourceSetString(k.SanitizedName, k.Quality, k.Format)  
-                : instance.GetSingleSourceString(k.SanitizedName, k.Quality, k.Format, k.Width); 
+                ? instance.GetSourceSetString(k.SanitizedName, k.Quality, k.Format)
+                : instance.GetSingleSourceString(k.SanitizedName, k.Quality, k.Format, k.Width);
 
             return (source, fallback, placeholder);
 
-        }, this); 
+        }, this);
     }
 
-    public double GetAspectRatio()
-    {
-        // Avoid division by zero
-        if (_config.AspectHeigth <= 0)
-        { 
-            return 1.0; // Default aspect ratio
-        }
-        return _config.AspectWidth / _config.AspectHeigth;
-    }
 
     // --- Private Helper Methods ---
 
     private string GetSingleSourceString(string sanitizedName, int quality, FileFormat format, int requestedWidth)
     {
 
-        int sizeIndex = Sizes.GetClosestSize((int)(requestedWidth * 1.5), _configSizes)  ;
+        int sizeIndex = Sizes.GetClosestSize((int)(requestedWidth * 1.5), _configSizes);
 
         int actualSize = _configSizes[sizeIndex];
         string formatStr = format.ToString();
- 
+
         var sb = _stringBuilderPool.Get();
         try
         {
@@ -99,9 +90,9 @@ internal sealed class ImageElementService : IImageElementService
             AppendPathBase(sb, sanitizedName, formatStr);
             sb.Append(sanitizedName);
             sb.Append('-');
-            sb.Append(actualSize); 
+            sb.Append(actualSize);
             sb.Append(WidthQualitySuffix);
-            sb.Append(quality); 
+            sb.Append(quality);
             sb.Append('.');
             sb.Append(formatStr);
 
@@ -119,7 +110,7 @@ internal sealed class ImageElementService : IImageElementService
     }
 
     private string GetSourceSetString(string sanitizedName, int quality, FileFormat format)
-    { 
+    {
 
         string formatStr = format.ToString();
         var sb = _stringBuilderPool.Get();
@@ -179,15 +170,15 @@ internal sealed class ImageElementService : IImageElementService
     {
         // Format: "{configDir}/{sanitizedName}/{sanitizedName}.jpeg"
         var sb = _stringBuilderPool.Get();
- 
+
         sb.Append(_configDir);
-            sb.Append(PathSeparator);
-            sb.Append(sanitizedName);
-            sb.Append(PathSeparator);
-            sb.Append(sanitizedName);
-            sb.Append(DefaultFallbackExtension);
-            return sb.ToString();
-        
+        sb.Append(PathSeparator);
+        sb.Append(sanitizedName);
+        sb.Append(PathSeparator);
+        sb.Append(sanitizedName);
+        sb.Append(DefaultFallbackExtension);
+        return sb.ToString();
+
     }
 
     private string BuildPlaceholderPath(string sanitizedName, FileFormat format)

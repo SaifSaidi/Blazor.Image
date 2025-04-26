@@ -17,7 +17,7 @@ internal sealed class CacheService : ICacheService
     private readonly DictionaryCacheDataService _dictionaryCacheData;
     private readonly ILiteDatabase _db;
     private readonly TimeSpan AbsoluteExpirationRelativeToNowValue;
-    private readonly TimeSpan? SlidingExpirationValue;
+    private readonly TimeSpan? SlidingExpirationValue = default;
 
     private const string ErrorRetrievingMessage = "Error retrieving from cache or database";
     private const string ErrorSavingMessage = "Error saving to cache or database";
@@ -40,8 +40,8 @@ internal sealed class CacheService : ICacheService
         string dirName = options.Value.OutputDir.TrimStart('/');
         _Dir = Path.Combine(env.WebRootPath, dirName);
 
-        AbsoluteExpirationRelativeToNowValue = options.Value.AbsoluteExpirationRelativeToNow;
-        SlidingExpirationValue = options.Value.SlidingExpiration;
+        AbsoluteExpirationRelativeToNowValue = TimeSpan.FromHours(720);
+
     }
 
     private MemoryCacheEntryOptions GetCacheEntryOptions()

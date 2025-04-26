@@ -27,26 +27,5 @@ namespace BlazorImage.Extensions
         /// Array of sizes for image configuration.
         /// </summary>
         public int[] Sizes = Data.Sizes.ConfigSizes;
-
-        /// <summary>
-        /// Aspect ratio width for images.
-        /// </summary>
-        public double AspectWidth = Constants.aspectWidth;
-
-        /// <summary>
-        /// Aspect ratio height for images.
-        /// </summary>
-        public double AspectHeigth = Constants.aspectHeigth;
-
-        /// <summary>
-        /// Absolute expiration time relative to now for cached images.
-        /// Default is 720 hours (30 days).
-        /// </summary>
-        public TimeSpan AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(720);
-
-        /// <summary>
-        /// Sliding expiration time for cached images.
-        /// </summary>
-        public TimeSpan? SlidingExpiration;
     }
 }

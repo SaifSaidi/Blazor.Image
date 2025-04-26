@@ -1,41 +1,22 @@
 ﻿using BlazorImage.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using System.Threading;
 using System.Threading.Channels;
 
 namespace BlazorImage
 {
-   
     public partial class Image : IDisposable
     {
-        // Services
+        #region Injected Services
+
         [Inject] IBlazorImageService BlazorImageService { get; set; } = default!;
         [Inject] private IImageElementService ImageElementService { get; set; } = default!;
-        [Inject]  private IJSRuntime JSRuntime { get; set; } = default!;
+        [Inject] private IJSRuntime JSRuntime { get; set; } = default!;
 
-        // State Fields
-        private string? _error;
-        private string? _statusMessage;
-        private int? _loadingPercentage;
-        private string? _fallbackImageSrc;
-        private string? _mimeType;
-        private ElementReference _imageRef;
-        private bool _isLoadComplete ;
-        private string? _containerStyle;
-        private string? _sizesAttr;
-        private string? _srcset;
-        private string? _dataSrcset;
+        #endregion
 
-        // Helper properties derived from parameters
-        private bool _isFillMode => Fill is true;
-        private string _figureClass => _isFillMode ? "fill-mode" : "fixed-mode";
-        private string _loadingClass => Priority ? "" : "_plachoder_lazy_load";
-        private string LoadingType => Priority ? "eager" : "lazy";
-        private bool _isInteractive => RendererInfo.IsInteractive && 
-            EnableInteractiveState;
-
-
-        // Parameters
+        #region Parameters
 
         /// <summary>
         /// The source URL of the image to be displayed.
@@ -45,7 +26,6 @@ namespace BlazorImage
 
         /// <summary>
         /// Alternative text for the image, used for accessibility and SEO.
-        /// Should be descriptive of the image content.
         /// </summary>
         [Parameter, EditorRequired]
         public required string Alt { get; set; }
@@ -63,8 +43,13 @@ namespace BlazorImage
         public int? Height { get; set; }
 
         /// <summary>
+        /// Aspect ratio for the image when Fill is true. Defaults to 4:3.
+        /// </summary>
+        [Parameter]
+        public (int AspectWidth, int AspectHeight)? AspectRatio { get; set; } = (4, 3);
+
+        /// <summary>
         /// When true, the image will fill its container while maintaining aspect ratio.
-        /// Width and Height should not be provided when Fill is true.
         /// </summary>
         [Parameter]
         public bool? Fill { get; set; }
@@ -86,12 +71,6 @@ namespace BlazorImage
         /// </summary>
         [Parameter]
         public bool Priority { get; set; }
-
-        /// <summary>
-        /// Title attribute for the image, displayed as a tooltip on hover.
-        /// </summary>
-        [Parameter]
-        public string? Title { get; set; }
 
         /// <summary>
         /// Additional CSS classes to apply to the image element.
@@ -142,46 +121,101 @@ namespace BlazorImage
         public string? Caption { get; set; }
 
         /// <summary>
+        /// Unique identifier for the image element.
+        /// </summary>
+        [Parameter]
+        public string? Id { get; set; }
+
+        /// <summary>
         /// Additional attributes to apply to the image element.
         /// </summary>
         [Parameter(CaptureUnmatchedValues = true)]
         public Dictionary<string, object>? AdditionalAttributes { get; set; }
 
+        #endregion
+
+        #region Internal Fields and State
+
+        private (int? Width, int? Height, bool? Fill, (int, int)? AspectRatio) _lastLayoutParams;
+
+        private ElementReference _imageRef;
+        private bool _isLoadComplete;
+        private string? _sizesAttr;
+        private string? _srcset;
+        private string? _dataSrcset;
+
+        private string? _error;
+        private string? _statusMessage;
+        private int? _loadingPercentage;
+
+        private string? FallbackImageSrc;
+        private string? MimeType;
+
+        private string? ContainerStyle;
+        private string? ComputedCaptionClass;
+        private bool HasCaption;
+
+        private string? _imageId;
+
 
         private CancellationTokenSource _cts = new();
+
+        private bool IsFillMode => Fill is true;
+        private string FigureClass => IsFillMode ? "fill-mode" : "fixed-mode";
+        private bool IsPreload => Priority && Id is not null;
+
+        private (string Class, string Loading, string Decoding) GetLoadAttributes =>
+            Priority ? ("", "eager", "auto") : ("_placeholder_lazy_load", "lazy", "async");
+
+        #endregion
+
+        #region Lifecycle Methods
+
+        protected override void OnInitialized()
+        {
+            _imageId = string.IsNullOrWhiteSpace(Id) ? $"img_{Guid.NewGuid().ToString("N").Substring(0, 8)}" : Id.Trim();
+        }
 
         protected override async Task OnParametersSetAsync()
         {
             if (_cts.IsCancellationRequested)
             {
+                _cts.Cancel();
                 _cts.Dispose();
-                _cts = new CancellationTokenSource();
             }
+            _cts = new CancellationTokenSource();
 
             if (!ValidateParameters()) return;
 
-            CalculateContainerStyle();
-            CalculateSizesAttribute();
-            await LoadImageInfoAsync();
+            CalculateStylesAndAttributes();
 
-            await base.OnParametersSetAsync();
+            await LoadImageInfoAsync(_cts.Token);
         }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            if (_isInteractive && !Priority && _imageRef.Context != null)
+            if (RendererInfo.IsInteractive &&
+                EnableInteractiveState &&
+                !Priority &&
+                _imageRef.Context != null)
             {
                 await JSRuntime.InvokeVoidAsync("BlazorLazyLoad", _imageRef);
             }
         }
 
-        private async Task LoadImageInfoAsync()
+        #endregion
+
+        #region Image Processing & Rendering
+
+        private async Task LoadImageInfoAsync(CancellationToken cancellationToken)
         {
             _isLoadComplete = false;
+            _error = null;
 
-            Result<ImageInfo>? result = await BlazorImageService.GetImageInfoAsync(Src, Quality, Format);
+            var result = await BlazorImageService.GetImageInfoAsync(Src, Quality, Format, cancellationToken);
+            if (cancellationToken.IsCancellationRequested) return;
 
-            if (result?.IsSuccess ?? false)
+            if (result?.IsSuccess == true)
             {
                 LoadImageSources(result.Value);
             }
@@ -195,32 +229,110 @@ namespace BlazorImage
             }
         }
 
-        public void Dispose()
+        private async Task ProcessImageWithProgressUpdates()
         {
-            _cts?.Cancel();
-            _cts?.Dispose();
-            _imageRef = default;
+            _loadingPercentage = 0;
+            _statusMessage = "Processing image...";
+            StateHasChanged();
+
+            var channel = Channel.CreateBounded<ProgressUpdate>(new BoundedChannelOptions(15));
+            await BlazorImageService.ProcessImageInBackgroundAsync(Src, Quality, Format, channel.Writer);
+
+            try
+            {
+                await foreach (var update in channel.Reader.ReadAllAsync())
+                {
+                    _statusMessage = update.Message;
+                    _loadingPercentage = update.Percentage;
+
+                    if (update.Error != null)
+                    {
+                        HandleErrorResult(update.Error);
+                        break;
+                    }
+
+                    StateHasChanged();
+                }
+
+                await LoadImageInfoAsync(_cts.Token);
+            }
+            catch (Exception ex)
+            {
+                HandleErrorResult($"Error during image processing: {ex.Message}");
+            }
+            finally
+            {
+                _statusMessage = null;
+                _loadingPercentage = null;
+                _isLoadComplete = true;
+            }
         }
 
-        private string GetSafeDefaultImage() => !string.IsNullOrEmpty(DefaultSrc)
-              ? DefaultSrc!
-              : "_content/BlazorImage/default.png";  
-        private void CalculateContainerStyle()
+        private void LoadImageSources(ImageInfo imageInfo)
         {
-            if (_isFillMode)
+            var (source, fallback, placeholder) = ImageElementService.GetStaticPictureSourceWithMetadataInfo(
+                imageInfo.SanitizedName,
+                imageInfo.Quality!.Value,
+                imageInfo.Format!.Value,
+                Width);
+
+            if (EnableInteractiveState || Priority)
             {
-                var aspect = ImageElementService.GetAspectRatio();
-                _containerStyle = $"--img-aspect-ratio: {aspect:F6}; aspect-ratio: {aspect:F2};";
+                _srcset = source;
+                _dataSrcset = null;
             }
             else
             {
-                var aspectRatio = (double)Width!.Value / Height!.Value;
-                _containerStyle = $"aspect-ratio: {aspectRatio:F2}; max-width: {Width}px;";
+                _srcset = placeholder;
+                _dataSrcset = source;
             }
+
+            FallbackImageSrc ??= fallback;
+            MimeType ??= imageInfo.Format?.ToMimeType();
+
+            _error = null;
+            _isLoadComplete = true;
         }
+
+        #endregion
+
+        #region Helpers
+
+
+        private void CalculateStylesAndAttributes()
+        {
+            var currentParams = (Width, Height, Fill, AspectRatio);
+
+            if (_lastLayoutParams == currentParams) return;
+            _lastLayoutParams = currentParams;
+
+
+            var hasAspectRatio = AspectRatio is { AspectWidth: > 0, AspectHeight: > 0 };
+            double aspectRatioValue = hasAspectRatio
+                ? (double)AspectRatio.Value.AspectWidth / AspectRatio.Value.AspectHeight
+                : 4.0 / 3.0;
+
+            if (AspectRatio != null)
+            {
+                Style = $"--img-aspect-ratio: {aspectRatioValue:0.##};";
+                ContainerStyle = IsFillMode
+                    ? $"aspect-ratio: {aspectRatioValue:0.##};"
+                    : Width.HasValue ? $"--img-container-width: {Width}px;" : null;
+            }
+
+            _sizesAttr = !string.IsNullOrEmpty(Sizes)
+                ? Sizes
+                : IsFillMode ? "100vw"
+                : Width.HasValue ? $"(max-width: {Width.Value}px) 100vw, {Width.Value}px"
+                : "100vw";
+
+            HasCaption = !string.IsNullOrEmpty(Caption);
+            ComputedCaptionClass = string.IsNullOrWhiteSpace(CaptionClass) ? null : CaptionClass;
+        }
+
         private bool ValidateParameters()
         {
-            bool isFill = _isFillMode;
+            bool isFill = IsFillMode;
 
             if (!isFill && (Width == null || Height == null || Width <= 0 || Height <= 0))
             {
@@ -238,103 +350,24 @@ namespace BlazorImage
             return true;
         }
 
-        private void CalculateSizesAttribute()
-        {
-            if (!string.IsNullOrEmpty(Sizes))
-            {
-                _sizesAttr = Sizes;
-            }
-            else if (_isFillMode)
-            {
-                _sizesAttr = "100vw"; 
-            }
-            else if (Width.HasValue)
-            {
-                _sizesAttr = $"{Width.Value}px";
-            }
-            else
-            {
-                _sizesAttr = "100vw"; // Fallback default
-            }
-        }
-
         private void HandleErrorResult(string errorMessage)
         {
             _error = errorMessage;
             _isLoadComplete = true;
-        }
-
-        private void LoadImageSources(ImageInfo imageInfo)
-        {
-
-            var (source, fallback, placeholder) = ImageElementService.GetStaticPictureSourceWithMetadataInfo(
-                    imageInfo.SanitizedName,
-                    imageInfo.Quality!.Value,
-                    imageInfo.Format!.Value,
-                    Width);
-
-
-            if (EnableInteractiveState || Priority)
-            {
-                _srcset = source;
-                _dataSrcset = null;
-            }
-            else
-            {
-                _srcset = placeholder;
-                _dataSrcset = source;
-            }
-
-            _fallbackImageSrc = fallback;
-            _mimeType = imageInfo.Format?.ToMimeType();
-            _error = null;
-            _isLoadComplete = true;
-        }
-
-        private async Task ProcessImageWithProgressUpdates()
-        {
-            _loadingPercentage = 0;
-            _statusMessage = "Processing image...";
             StateHasChanged();
-            var options = new BoundedChannelOptions(10)
-            {
-                FullMode = BoundedChannelFullMode.DropOldest,
-
-            };
-
-            var channel = Channel.CreateBounded<ProgressUpdate>(options);
-
-            await BlazorImageService.ProcessImageInBackgroundAsync(Src, Quality, Format, channel.Writer);
-
-            try
-            {
-                await foreach (var message in channel.Reader.ReadAllAsync())
-                {
-                    _statusMessage = message.Message;
-                    _loadingPercentage = message.Percentage;
-                    if (message.Error != null)
-                    {
-                        HandleErrorResult(message.Error);
-                        break;
-                    }
-
-                    StateHasChanged();
-                }
-
-                await LoadImageInfoAsync();
-
-            }
-            catch (Exception ex)
-            {
-                HandleErrorResult($"Error during image processing: {ex.Message}");
-            }
-            finally
-            {
-                _statusMessage = null;
-                _loadingPercentage = null;
-                _isLoadComplete = true;
-            }
         }
 
+        #endregion
+
+        #region IDisposable
+
+        public void Dispose()
+        {
+            _cts?.Cancel();
+            _cts?.Dispose();
+            _imageRef = default;
+        }
+
+        #endregion
     }
 }
