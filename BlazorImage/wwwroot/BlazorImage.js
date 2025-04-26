@@ -2,7 +2,7 @@
     "use strict";
 
     const config = {
-        lazyClass: "_plachoder_lazy_load",
+        lazyClass: "_placeholder_lazy_load",
         loadedClass: "blazorlazyloaded",
         srcAttr: "data-src",
         srcsetAttr: "data-srcset",
@@ -166,10 +166,9 @@
 
     if (documentObj.readyState === "loading") {
         documentObj.addEventListener("DOMContentLoaded", onDOMReady, { once: true, passive: true });
-    } else {
-        onDOMReady();
     }
 
-    windowObj.Blazor.addEventListener("enhancedload", () => observeImages());
-
+    windowObj.Blazor.addEventListener("enhancedload", () => {
+        onDOMReady();
+    });
 })(window, document);
