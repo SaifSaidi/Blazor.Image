@@ -30,7 +30,4 @@ internal class DictionaryCacheDataService
         public override readonly int GetHashCode() => HashCode.Combine(SanitizedName, Quality, Format, Width);
  
     }
-
-
-
 }

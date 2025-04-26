@@ -4,12 +4,12 @@
     {
 
         internal static readonly int[] ConfigSizes = [
-            480, // xs
-            640, // sm
-            768, // md
-            1024, // lg
-            1280, // xl
-            1536 //2xl
+            480,    // xs
+            640,    // sm
+            768,    // md
+            1024,   // lg
+            1280,   // xl
+            1536    // 2xl
         ];
 
         internal static int GetClosestSize(int width, ReadOnlySpan<int> ConfigSizes)
@@ -23,7 +23,6 @@
             {
                 return ConfigSizes.Length - 1;
             }
-
 
             // Find the index of the first size that is greater than or equal to the provided width
             for (int i = 0; i < ConfigSizes.Length; i++)
