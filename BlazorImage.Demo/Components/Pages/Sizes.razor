@@ -1,0 +1,98 @@
+﻿@page "/sizes"
+
+<div class="container mx-auto px-6 md:px-12 lg:px-24">
+    <section class="py-8">
+        <h1 class="text-3xl font-extrabold text-gray-900 mb-6 tracking-tight">Images with <code>sizes</code> and <code>AspectRatio</code></h1>
+        <p class="text-lg text-gray-700 leading-relaxed mb-8">
+            Explore how to create responsive images that adapt to different screen sizes and maintain their intended proportions using the <code>sizes</code> and <code>AspectRatio</code> props.
+        </p>
+
+        <section class="mb-12 rounded-lg shadow-md overflow-hidden border border-gray-200">
+            <div class="relative aspect-video bg-gray-100">
+                <Image Src="/images/white-horse.jpg"
+                       Alt="white horse"
+                       Fill="true"
+                       CssClass="object-cover"
+                       Sizes="(max-width: 1200px) 100vw, (max-width: 1570px) 50vw, 33vw" />
+            </div>
+            <div class="p-4 text-sm text-gray-600">
+                <h2 class="text-lg font-semibold text-gray-800 mb-3">Understanding the <code>sizes</code> Prop:</h2>
+                <ul class="list-disc pl-6 space-y-2">
+                    <li><strong class="font-semibold text-gray-800">Mobile (up to 768px):</strong> Image takes full width (<code class="font-mono">100vw</code>).</li>
+                    <li><strong class="font-semibold text-gray-800">Tablet (769px - 1200px):</strong> Image takes half width (<code class="font-mono">50vw</code>).</li>
+                    <li><strong class="font-semibold text-gray-800">Large Tablet/Small Desktop (1201px - 1570px):</strong> Image takes half width (<code class="font-mono">50vw</code>).</li>
+                    <li><strong class="font-semibold text-gray-800">Desktop (above 1570px):</strong> Image takes one-third width (<code class="font-mono">33vw</code>).</li>
+                </ul>
+            </div>
+            <div class="mt-4 rounded-md bg-gray-100 p-4">
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">Code Example for <code>sizes</code></h3>
+                <pre class="bg-gray-200 rounded-md overflow-x-auto p-2 font-mono text-sm text-gray-900"><code>
+&lt;Image
+    Src="/responsive-image.jpg"
+    Alt="Responsive image"
+    Fill="true"
+    AspectRatio="(16, 9)"
+    Sizes="(max-width: 768px) 100vw,
+           (max-width: 1200px) 50vw,
+           33vw"
+    CssClass="object-cover" /&gt;
+</code></pre>
+            </div>
+        </section>
+
+        <section class="py-8 border-t border-gray-200">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-6">Maintaining Aspect Ratio with the <code>AspectRatio</code> Prop</h2>
+            <p class="text-lg text-gray-700 leading-relaxed mb-8">
+                The <code>AspectRatio</code> prop ensures your images maintain their intended proportions during loading and resizing, preventing layout shifts. Combine it with <code>Fill</code> to make the image scale within its container while respecting the ratio.
+            </p>
+
+            <div class="mb-8 rounded-lg shadow-md overflow-hidden border border-gray-200">
+                <div class="relative bg-gray-100">
+                    <Image Src="/images/landscape.jpg"
+                           Alt="Landscape with Aspect Ratio"
+                           Fill="true"
+                           AspectRatio="(16, 9)"
+                           CssClass="object-cover" />
+                </div>
+                <div class="p-4 text-sm text-gray-600">
+                    <p>This image uses an <code>AspectRatio</code> of <code class="font-mono">(16, 9)</code>. The container will maintain this ratio, and the image will fill it using <code>object-cover</code>.</p>
+                </div>
+                <div class="mt-4 rounded-md bg-gray-100 p-4">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Code Example for <code>AspectRatio</code> Prop</h3>
+                    <pre class="bg-gray-200 rounded-md overflow-x-auto p-2 font-mono text-sm text-gray-900"><code>
+&lt;Image
+    Src="/landscape.jpg"
+    Alt="Landscape with fixed aspect ratio"
+    Fill="true"
+    AspectRatio="(16, 9)" &lt;!-- (AspectWidth, AspectHeight) --&gt
+    CssClass="object-cover" /&gt;
+</code></pre>
+                </div>
+            </div>
+
+            <div class="rounded-lg shadow-md overflow-hidden border border-gray-200">
+                <div class="relative" style="aspect-ratio: 16 / 9;">
+                    <Image Src="/images/landscape.jpg"
+                           Alt="Landscape with CSS Aspect Ratio"
+                           Fill="true"
+                           CssClass="object-cover" />
+                </div>
+                <div class="p-4 text-sm text-gray-600">
+                    <p>You can also control aspect ratio using CSS with <code class="font-mono">style="aspect-ratio: 16 / 9;"</code> or Tailwind CSS classes like <code class="font-mono">aspect-w-16 aspect-h-9</code>.</p>
+                </div>
+                <div class="mt-4 rounded-md bg-gray-100 p-4">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Code Example with CSS <code>aspect-ratio</code></h3>
+                    <pre class="bg-gray-200 rounded-md overflow-x-auto p-2 font-mono text-sm text-gray-900"><code>
+&lt;div style="position:relative; aspect-ratio: 16 / 9;"> &lt;!-- or class="aspect-w-16 aspect-h-9" --&gt
+    &lt;Image
+        Src="/landscape.jpg"
+        Alt="Landscape with CSS aspect ratio"
+        Fill="true"
+        CssClass="object-cover" /&gt;
+&lt;/div>
+</code></pre>
+                </div>
+            </div>
+        </section>
+    </section>
+</div> 

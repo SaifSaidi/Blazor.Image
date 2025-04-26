@@ -1,44 +1,71 @@
 ﻿@page "/lazy"
 
- <div class="container mx-auto px-4 py-12">
-      <h1 class="text-3xl font-bold mb-6">Lazy Loading (Default Behavior)</h1>
-      <p class="mb-8">
-        By default, Image component use native browser lazy loading. Images only start loading when they're
-        close to appearing in the viewport. Scroll down to see the images load as they enter the viewport.
-      </p>
+<div class="container mx-auto px-6 md:px-12 lg:px-24">
+    <section class="py-8">
+        <h1 class="text-3xl font-extrabold text-gray-900 mb-6 tracking-tight">Effortless Lazy Loading (Default)</h1>
+        <p class="text-lg text-gray-700 leading-relaxed mb-8">
+            Experience the power of native browser lazy loading with the <code class="bg-gray-100 text-gray-800 font-mono px-2 py-1 rounded">Image</code> component. By default, images intelligently defer their loading until they are near the viewport, resulting in faster initial page loads and improved performance. Scroll down to witness this in action!
+        </p>
 
-      <div class="space-y-96">
-        @foreach (string image in new string[] { "black-cat.jpg", "lion.jpg", "horse.jpg" })
-        {
-             <div class="border p-4 rounded-lg">
-                <h2 class="text-xl font-semibold mb-4">Image </h2>
-                <Image Src=@($"/images/{image}")
-                       Alt="Lazy loaded"
-                       Width="400"
-					   Height="400"
-                       Caption="@image"
-              CssClass="rounded-md"
-            />
-            <p class="mt-4 text-sm text-gray-600">
-              This image uses the default lazy loading behavior. It only starts loading when it's close to entering the
-              viewport.
-            </p>
-          </div>
-        }
-         
-      </div>
+        <div class="space-y-12">
+            <div class="rounded-lg shadow-md overflow-hidden border border-gray-200">
+                <h2 class="text-xl font-semibold text-gray-800 bg-gray-100 p-4 rounded-t-lg">Image: Cat</h2>
+                <div class="relative aspect-w-1 aspect-h-2 bg-gray-50 flex items-center justify-center">
+                    <Image Src="/images/black-cat.jpg"
+                           Alt="black-cat"
+                           style="object-fit: cover; width: 100%; height: 100%;"
+                           Width="400"
+                           Height="800" />
 
-      <div class="mt-8">
-        <h2 class="text-xl font-semibold mb-4">Code Example</h2>
-        <pre class="bg-gray-100 p-4 rounded-md overflow-x-auto">
-@("<")Image
+                </div>
+                <p class="p-4 text-sm text-gray-600">
+                    This image demonstrates the default lazy loading behavior. It will only begin to load as you scroll down and it approaches the visible area of your screen.
+                </p>
+            </div>
+
+            <div class="rounded-lg shadow-md overflow-hidden border border-gray-200">
+                <h2 class="text-xl font-semibold text-gray-800 bg-gray-100 p-4 rounded-t-lg">Image: Lion</h2>
+                <div class="relative aspect-w-1 aspect-h-2 bg-gray-50 flex items-center justify-center">
+                    <Image Src="/images/lion.jpg"
+                           Alt="lion"
+                           style="object-fit: cover; width: 100%; height: 100%;"
+                           Width="400"
+                           Height="800" />
+
+                </div>
+                <p class="p-4 text-sm text-gray-600">
+                    This image demonstrates the default lazy loading behavior. It will only begin to load as you scroll down and it approaches the visible area of your screen.
+                </p>
+            </div>
+
+
+            <div class="rounded-lg shadow-md overflow-hidden border border-gray-200">
+                <h2 class="text-xl font-semibold text-gray-800 bg-gray-100 p-4 rounded-t-lg">Image: Horse</h2>
+                <div class="relative aspect-w-1 aspect-h-2 bg-gray-50 flex items-center justify-center">
+                    <Image Src="/images/horse.jpg"
+                           Alt="horse"
+                           style="object-fit: cover; width: 100%; height: 100%;"
+                           Width="400"
+                           Height="800" />
+
+                </div>
+                <p class="p-4 text-sm text-gray-600">
+                    This image demonstrates the default lazy loading behavior. It will only begin to load as you scroll down and it approaches the visible area of your screen.
+                </p>
+            </div>
+
+        </div>
+
+        <div class="mt-8 rounded-md bg-gray-100 p-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-3">Code Example</h3>
+            <pre class="bg-gray-200 rounded-md overflow-x-auto p-4 font-mono text-sm text-gray-900"><code>
+&lt;Image
     Src="/example-image.jpg"
     Alt="Lazy loaded image"
     Width="600"
     Height="400"
-    // No Priority prop = lazy loaded by default
-@("/>")
-        </pre>
-      </div>
-    </div>
-     
+    &lt;!-- No Priority prop implies lazy loading by default --&gt; /&gt;
+</code></pre>
+        </div>
+    </section>
+</div>

@@ -1,41 +1,48 @@
 ﻿@page "/basic"
 
-<div class="container mx-auto px-4 py-12">
-      <h1 class="text-3xl font-bold mb-6">Basic Image Example</h1>
-      <p class="mb-8">
-        This example shows the basic usage of the Image component with explicit width and height. The image is
-        automatically optimized and will lazy load by default.
-      </p>
+<div class="container mx-auto px-6 md:px-12 lg:px-24">
+    <section class="py-8">
+        <h1 class="text-3xl font-extrabold text-gray-900 mb-6 tracking-tight">Basic Image Optimization</h1>
+        <p class="text-lg text-gray-700 leading-relaxed mb-6">
+            Discover the simplicity of optimizing images with the <code class="bg-gray-100 text-gray-800 font-mono px-2 py-1 rounded">Image</code> component. This example showcases its fundamental usage with explicitly defined width and height, ensuring automatic optimization and <strong class="font-semibold">lazy loading</strong> by default for improved performance.
+        </p>
 
-      <div class="border p-4 rounded-lg">
-        <Image Src="/images/photo.jpeg"
-          Alt="Example image"
-          Width="600"
-          Height="400"
-               Caption="basic usage of the Image component" />
-
-        <div class="mt-4 text-sm text-gray-600">
-          <p class="font-medium">Key features:</p>
-          <ul class="list-disc pl-5 mt-2">
-            <li>Automatic image optimization</li>
-            <li>WebP format conversion by default</li>
-            <li>Quality is 75 by default</li>
-            <li>Prevents layout shift with explicit dimensions</li>
-            <li>Lazy loaded by default</li>
-          </ul>
+        <div class="rounded-lg shadow-md overflow-hidden border border-gray-200 max-w-lg mx-auto">
+            <div class="relative aspect-w-3 aspect-h-2 bg-gray-100 flex items-center justify-center">
+                <Image Src="/images/photo.jpeg"
+                       Alt="Example image"
+                       DefaultSrc="https://cdn.pixabay.com/photo/2022/02/13/17/22/cartoon-easter-bunny-7011655_1280.jpg"
+                       Width="600"
+                       Height="400"
+                       CssClass="border border-gray-200 p-2 rounded-sm" />
+            </div>
         </div>
-      </div>
 
-      <div class="mt-8">
-        <h2 class="text-xl font-semibold mb-4">Code Example</h2>
-        <pre class="bg-gray-100 p-4 rounded-md overflow-x-auto">
-@("<")Image
+        <p class="mt-4 text-sm text-green-600 font-semibold">
+            The original image size was approximately 1.5 MB, now efficiently optimized to around 71 KB!
+        </p>
+
+        <div class="mt-6 text-gray-600">
+            <h2 class="text-xl font-semibold mb-3">Key Benefits:</h2>
+            <ul class="list-disc pl-6 space-y-2">
+                <li><strong class="font-semibold text-gray-800">Automatic Optimization:</strong> Images are optimized behind the scenes.</li>
+                <li><strong class="font-semibold text-gray-800">WebP Conversion:</strong> Default conversion to the efficient WebP format.</li>
+                <li><strong class="font-semibold text-gray-800">Adjustable Quality:</strong> Default quality setting of 75.</li>
+                <li><strong class="font-semibold text-gray-800">Layout Stability:</strong> Explicit dimensions prevent content layout shifts.</li>
+                <li><strong class="font-semibold text-gray-800">Lazy Loading:</strong> Images load only when they enter the viewport, improving initial page load.</li>
+            </ul>
+        </div>
+
+        <div class="mt-8 rounded-md bg-gray-100 p-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-3">Code Example</h3>
+            <pre class="bg-gray-200 rounded-md overflow-x-auto p-4 font-mono text-sm text-gray-900"><code>
+&lt;Image
     Src="/example-image.jpg"
     Alt="Example image"
+    DefaultSrc="..." &lt;!-- (optional) override error messages --&gt;
     Width="600"
-    Height="400"
-    Caption="basic usage of the Image component"
-@("/>")
-        </pre>
-      </div>
-    </div>
+    Height="400" /&gt;
+</code></pre>
+        </div>
+    </section>
+</div>
