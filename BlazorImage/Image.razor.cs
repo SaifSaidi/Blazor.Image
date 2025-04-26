@@ -309,7 +309,7 @@ namespace BlazorImage
 
             var hasAspectRatio = AspectRatio is { AspectWidth: > 0, AspectHeight: > 0 };
             double aspectRatioValue = hasAspectRatio
-                ? (double)AspectRatio.Value.AspectWidth / AspectRatio.Value.AspectHeight
+                ? (double)AspectRatio!.Value.AspectWidth / AspectRatio.Value.AspectHeight
                 : 4.0 / 3.0;
 
             if (AspectRatio != null)

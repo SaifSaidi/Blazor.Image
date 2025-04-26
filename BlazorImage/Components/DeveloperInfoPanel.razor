@@ -142,7 +142,7 @@
                 @foreach (var width in Options.Value.Sizes)
                 {
 
-                    var fileSrc = GetImageProccessOutputDir(ImageDataService.GenerateImageName(ImageComponent.Src, width, ImageComponent.Quality, ImageComponent.Format));
+                    var fileSrc = GetImageProccessOutputDir(ImageDataService.GenerateImageName(ImageComponent!.Src, width, ImageComponent.Quality, ImageComponent.Format));
                     var oldSize = FileService.GetFileSizeInKb(ImageComponent.Src);
                     var newSize = FileService.GetFileSizeInKb(fileSrc ?? "");
                     var reduction = HelpersMethods.CalculateReductionPercentage(oldSize,
