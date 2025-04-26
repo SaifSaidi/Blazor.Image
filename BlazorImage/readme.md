@@ -1,8 +1,6 @@
-﻿# BlazorImage - Blazor Images Optimization
- 
+﻿# Blazor Image
 
-BlazorImage is a powerful image optimization library for Blazor applications, supporting both static rendering and interactive server-side scenarios. It provides seamless image optimization with lazy loading, multiple format support, and responsive image handling.
+Image optimization library for Blazor (.NET). 
 
-More information about BlazorImage can be found at: https://github.com/SaifSaidi/BlazorImage
-
+📚 Learn more and explore the source code on GitHub: **[https://github.com/SaifSaidi/BlazorImage](https://github.com/SaifSaidi/BlazorImage)**
 
