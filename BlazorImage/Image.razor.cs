@@ -152,6 +152,7 @@ namespace BlazorImage
         private string? MimeType;
 
         private string? ContainerStyle;
+        private string? ImageStyle;
         private string? ComputedCaptionClass;
         private bool HasCaption;
 
@@ -164,8 +165,9 @@ namespace BlazorImage
         private string FigureClass => IsFillMode ? "fill-mode" : "fixed-mode";
         private bool IsPreload => Priority && Id is not null;
 
-        private (string Class, string Loading, string Decoding) GetLoadAttributes =>
-            Priority ? ("", "eager", "auto") : ("_placeholder_lazy_load", "lazy", "async");
+        private (string? Class, string Loading, string Decoding) GetLoadAttributes =>
+            Priority ? ("_placeholder_eager_load", "eager", "auto")
+            : ("_placeholder_lazy_load", "lazy", "async");
 
         #endregion
 
@@ -312,13 +314,16 @@ namespace BlazorImage
                 ? (double)AspectRatio!.Value.AspectWidth / AspectRatio.Value.AspectHeight
                 : 4.0 / 3.0;
 
+            ImageStyle = Style?.TrimEnd(';');
+
             if (AspectRatio != null)
             {
-                Style = $"--img-aspect-ratio: {aspectRatioValue:0.##};";
+                ImageStyle += $";--img-aspect-ratio: {aspectRatioValue:0.##};";
                 ContainerStyle = IsFillMode
                     ? $"aspect-ratio: {aspectRatioValue:0.##};"
                     : Width.HasValue ? $"--img-container-width: {Width}px;" : null;
             }
+
 
             _sizesAttr = !string.IsNullOrEmpty(Sizes)
                 ? Sizes

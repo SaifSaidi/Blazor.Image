@@ -102,6 +102,16 @@ figure > picture img._placeholder_lazy_load {
     background-color: var(--img-placeholder-bg-start);
 }
 
+figure > picture img._placeholder_eager_load {
+    filter: none;
+    transform: none;
+    opacity: 1;
+    transition: none;
+    aspect-ratio: var(--img-aspect-ratio, 4/3);
+    background-color: transparent;
+}
+
+
 figure > picture img.blazorlazyloaded {
     filter: none;
     transform: scale(1);
@@ -110,10 +120,7 @@ figure > picture img.blazorlazyloaded {
 }
 
 /* Caption Styles */
-figcaption {
-    font-size: clamp(0.75rem, 1vw, 0.875rem);
-}
-
+ 
 .fill-mode figcaption {
     position: absolute;
     bottom: 0;
