@@ -41,12 +41,12 @@ Easily deliver optimized images with a single line:
 **Using .NET CLI:**
 
 ```bash
-dotnet add package BlazorImage --version 1.0.3
+dotnet add package BlazorImage --version 1.0.4
 ```
 
 **Or add a reference manually:**
 ```bash
-<PackageReference Include="BlazorImage" Version="1.0.3" />
+<PackageReference Include="BlazorImage" Version="1.0.4" />
 ```
 
 
