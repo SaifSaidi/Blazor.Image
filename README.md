@@ -1,6 +1,6 @@
-# BlazorImage [![NuGet version (BlazorImage)](https://img.shields.io/nuget/v/BlazorImage.svg?style=flat-square)](https://www.nuget.org/packages/BlazorImage/) [![NuGet downloads (BlazorImage)](https://img.shields.io/nuget/dt/BlazorImage.svg?logo=nuget&label=nuget%20downloads&color=ff5c9b)](https://www.nuget.org/packages/BlazorImage)
+# Blazor Image [![NuGet version (BlazorImage)](https://img.shields.io/nuget/v/BlazorImage.svg?style=flat-square)](https://www.nuget.org/packages/BlazorImage/) [![NuGet downloads (BlazorImage)](https://img.shields.io/nuget/dt/BlazorImage.svg?logo=nuget&label=nuget%20downloads&color=ff5c9b)](https://www.nuget.org/packages/BlazorImage)
 
-**BlazorImage** is a powerful image optimization library for [Blazor](https://dotnet.microsoft.com/en-us/apps/aspnet/web-apps/blazor) that automates compression, responsive sizing, and caching of static images (`.jpg`, `.png`, `.webp`, `.avif`)—all in one component.
+**Blazor Image** is a powerful image optimization library for [Blazor](https://dotnet.microsoft.com/en-us/apps/aspnet/web-apps/blazor) that automates compression, responsive sizing, and caching of static images (`.jpg`, `.png`, `.webp`, `.avif`)—all in one component.
 
 
 <img align="right" width="100px" height="100px" src="./BlazorImage/icon.png">
@@ -10,6 +10,11 @@ Easily deliver optimized images with a single line:
 ```razor
 <Image Src="/images/sample.jpg" Alt="Descriptive alt text" Width="300" Height="200" />
 ```
+
+If **BlazorImage** has been helpful in your projects, consider **starring** the repo on [GitHub]([https://github.com/your-repo-link](https://github.com/SaifSaidi/Blazor.Image))!  
+It’s a quick way to show support, boost visibility for others, and encourage continued development.
+
+Thank you for your support!
 
 ## Features
 
