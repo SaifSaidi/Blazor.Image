@@ -1,11 +1,9 @@
-# ![BlazorImage – Blazor Image Optimization Library](banner.png)
+# BlazorImage [![NuGet version (BlazorImage)](https://img.shields.io/nuget/v/BlazorImage.svg?style=flat-square)](https://www.nuget.org/packages/BlazorImage/) [![NuGet downloads (BlazorImage)](https://img.shields.io/nuget/dt/BlazorImage.svg?logo=nuget&label=nuget%20downloads&color=ff5c9b)](https://www.nuget.org/packages/BlazorImage)
 
-[![NuGet version (BlazorImage)](https://img.shields.io/nuget/v/BlazorImage.svg?style=flat-square)](https://www.nuget.org/packages/BlazorImage/)
-[![NuGet downloads (BlazorImage)](https://img.shields.io/nuget/dt/BlazorImage.svg?logo=nuget&label=nuget%20downloads&color=ff5c9b)](https://www.nuget.org/packages/BlazorImage)
-
-## BlazorImage – Image Optimization for Blazor (.NET)
 **BlazorImage** is a powerful image optimization library for [Blazor](https://dotnet.microsoft.com/en-us/apps/aspnet/web-apps/blazor) that automates compression, responsive sizing, and caching of static images (`.jpg`, `.png`, `.webp`, `.avif`)—all in one component.
 
+
+<img align="right" width="100px" height="100px" src="./BlazorImage/icon.png">
 
 Easily deliver optimized images with a single line:
 
@@ -30,13 +28,14 @@ Easily deliver optimized images with a single line:
 ### ✅ Requirements
 
 - [.NET 9.0 SDK](https://dotnet.microsoft.com/en-us/download) or later
-- Blazor Server App (Blazor WebAssembly is **not yet supported**)
+- Blazor WebAssembly is **not yet supported**
 
 > ✅ *Currently supports local images only. Remote image support is coming soon.*
 
 ---
 
-### 📦 Installation
+## 📦 Installation
+BlazorImage is available as a NuGet package: [![NuGet version (BlazorImage)](https://img.shields.io/nuget/v/BlazorImage.svg?style=flat-square)](https://www.nuget.org/packages/BlazorImage/)
 
 **Using .NET CLI:**
 
@@ -130,6 +129,7 @@ Use the `<Image>` component to render optimized, responsive, and accessible imag
 ```razor
 <Image Src="/images/sample.jpg" Alt="Descriptive alt text" Width="300" Height="200" />
 ```
+
 ### `<Image>` Component Parameters
 
 > **Note:** Use `CssClass` instead of `class`, and `Style` instead of `style` for all styling.
@@ -216,6 +216,22 @@ Use the `<Image>` component to render optimized, responsive, and accessible imag
 <Image Src="/images/hero.jpg" Alt="Hero image" Priority="true" />
 ```
 
+**Eager loading with `preload`:**
+```razor
+<HeadContent>
+    <SectionOutlet SectionName="hero-image-id" /> <!-- Set Image Id -->
+</HeadContent>
+
+<Image
+    Id="hero-image-id" <!-- Add a unique image id -->
+    Priority="true"    <!-- Enables priority loading and preload -->
+    Src="/hero-image.jpg"
+    Alt="Hero image"
+    Width="1200"
+    Height="600" />
+```
+
+
 **Custom format + quality:**
 
 ```razor
@@ -228,16 +244,41 @@ Use the `<Image>` component to render optimized, responsive, and accessible imag
  <Image Src="/images/avatar.jpg" Alt="Avatar image" Sizes="(max-width: 768px) 8rem, 13rem" CssClass="rounded-full object-cover"  Fill="true" Priority="true" />
 ```
 
+**Aspect Ratio:**
+```razor
+<Image Src="/images/landscape.jpg" Alt="Landscape" AspectRatio="@(16,9)" Fill="true" />
+```
+
 **Adding a caption:**
 
 ```razor
 <Image Src="/images/product.jpg" Alt="Product shot" Caption="The latest product" CaptionClass="product-caption" />
 ```
 
-**Using a default image:**
-```razor
-<Image Src="/images/non-existent.jpg" Alt="Fallback image" DefaultSrc="/images/default.jpg" />
-```
+
+## 🚀 Running the BlazorImage.Demo Project
+
+The `BlazorImage.Demo` project is a sample application included in the repository that demonstrates how to use the BlazorImage library.
+
+
+### Steps to Run the Demo
+
+1. **Clone the Repository**  
+   Clone the BlazorImage repository to your local machine:
+   
+2. **Ensure Prerequisites**  
+   - Install the [.NET 9.0 SDK](https://dotnet.microsoft.com/en-us/download) or later.
+   - Ensure you have a compatible IDE like [Visual Studio](https://visualstudio.microsoft.com/) with Blazor support enabled.
+
+3. **Build the Solution**  
+Build the entire solution.    
+
+4. **Run the Demo Project**  
+   - Set the `BlazorImage.Demo` project as the startup project.
+   - Run the project (usually by pressing F5 or clicking the run button).
+
+> **Note:** Ensure that the `wwwroot` folder contains sample images for the demo to function correctly.
+  
 
 ##  License
 This project is licensed under the MIT License. See the [LICENSE](LICENSE.txt) for full details.
