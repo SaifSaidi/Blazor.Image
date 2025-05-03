@@ -6,7 +6,7 @@ using System.Threading.Channels;
 
 namespace BlazorImage
 {
-    public partial class Image : IDisposable
+    public partial class Image
     {
         #region Injected Services
 
@@ -158,9 +158,6 @@ namespace BlazorImage
 
         private string? _imageId;
 
-
-        private CancellationTokenSource _cts = new();
-
         private bool IsFillMode => Fill is true;
         private string FigureClass => IsFillMode ? "fill-mode" : "fixed-mode";
         private bool IsPreload => Priority && Id is not null;
@@ -175,23 +172,17 @@ namespace BlazorImage
 
         protected override void OnInitialized()
         {
-            _imageId = string.IsNullOrWhiteSpace(Id) ? $"img_{Guid.NewGuid().ToString("N").Substring(0, 8)}" : Id.Trim();
+            _imageId = string.IsNullOrWhiteSpace(Id) ? $"img_{Guid.NewGuid().ToString("N")[..8]}" : Id.Trim();
         }
 
         protected override async Task OnParametersSetAsync()
         {
-            if (_cts.IsCancellationRequested)
-            {
-                _cts.Cancel();
-                _cts.Dispose();
-            }
-            _cts = new CancellationTokenSource();
 
             if (!ValidateParameters()) return;
 
             CalculateStylesAndAttributes();
 
-            await LoadImageInfoAsync(_cts.Token);
+            await LoadImageInfoAsync();
         }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -209,13 +200,12 @@ namespace BlazorImage
 
         #region Image Processing & Rendering
 
-        private async Task LoadImageInfoAsync(CancellationToken cancellationToken)
+        private async Task LoadImageInfoAsync()
         {
             _isLoadComplete = false;
             _error = null;
 
-            var result = await BlazorImageService.GetImageInfoAsync(Src, Quality, Format, cancellationToken);
-            if (cancellationToken.IsCancellationRequested) return;
+            var result = await BlazorImageService.GetImageInfoAsync(Src, Quality, Format);
 
             if (result?.IsSuccess == true)
             {
@@ -256,7 +246,7 @@ namespace BlazorImage
                     StateHasChanged();
                 }
 
-                await LoadImageInfoAsync(_cts.Token);
+                await LoadImageInfoAsync();
             }
             catch (Exception ex)
             {
@@ -361,18 +351,6 @@ namespace BlazorImage
             _isLoadComplete = true;
             StateHasChanged();
         }
-
-        #endregion
-
-        #region IDisposable
-
-        public void Dispose()
-        {
-            _cts?.Cancel();
-            _cts?.Dispose();
-            _imageRef = default;
-        }
-
         #endregion
     }
 }

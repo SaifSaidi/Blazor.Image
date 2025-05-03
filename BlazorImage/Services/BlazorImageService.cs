@@ -58,7 +58,7 @@ internal sealed class BlazorImageService : IBlazorImageService
         LastWidth = _config.Sizes[_config.Sizes.Length / 2];
     }
 
-    public async ValueTask<Result<ImageInfo>?> GetImageInfoAsync(string src, int? quality, FileFormat? format, CancellationToken cancellationToken)
+    public async ValueTask<Result<ImageInfo>?> GetImageInfoAsync(string src, int? quality, FileFormat? format)
     {
         if (string.IsNullOrWhiteSpace(src))
         {

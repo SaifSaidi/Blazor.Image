@@ -1,83 +1,91 @@
 ﻿@attribute [StreamRendering]
 
-<figure @key="_imageId" class="@FigureClass" style="@ContainerStyle">
-    @if (!_isLoadComplete)
-    {
-        <div class="image-loader-container" role="status" aria-live="polite">
-            <img src="@Src"
-                 alt="@Alt"
-                 loading="@GetLoadAttributes.Loading"
-                 decoding="@GetLoadAttributes.Decoding" />
+<figure class="@FigureClass" style="@ContainerStyle">
+   @if (!_isLoadComplete) // Check if the image is still loading
+   {
+       <div class="image-loader-container" role="status" aria-live="polite">
+           <!-- Placeholder image displayed while loading -->
+           <img src="@Src"
+                alt="@Alt"
+                loading="@GetLoadAttributes.Loading"
+                decoding="@GetLoadAttributes.Decoding"
+                class="image-placeholder" />
 
-            <div class="overlay">
-                <div class="loader loader-spinner" aria-hidden="true">
-                    <div class="spinner"></div>
-                </div>
-                <p> @_loadingPercentage%</p>
-                <p class="optimization-text" aria-hidden="true">@_statusMessage</p>
-            </div>
-
-        </div>
-    }
-    else if (!string.IsNullOrEmpty(_error))
-    {
-        @if (!string.IsNullOrEmpty(DefaultSrc))
-        {
-            <picture>
-                <source type="@MimeType" srcset="@DefaultSrc" />
-                <img src="@DefaultSrc"
-                     alt="@Alt"
-                     class="@CssClass"
-                     style="@Style"
-                     width="@Width"
-                     height="@Height" />
-            </picture>
-        }
-        else
-        {
-            <div class="error-message" role="alert" aria-live="assertive">
-                <p class="sr-only">Image failed to load</p>
-                <p>Failed to load image: @_error</p>
-            </div>
-        }
-    }
-    else
-    {
-        <picture>
-            <source type="@MimeType" srcset="@_srcset" data-srcset="@_dataSrcset" sizes="@_sizesAttr" />
-            <source type="image/jpeg" srcset="@FallbackImageSrc" sizes="@_sizesAttr" />
-            <img src="@FallbackImageSrc"
-                 alt="@Alt"
-                 loading="@GetLoadAttributes.Loading"
-                 decoding="@GetLoadAttributes.Decoding"
-                 class="@GetLoadAttributes.Class @CssClass"
-                 style="@ImageStyle"
-                 width="@Width"
-                 height="@Height"
-                 aria-describedby="@_imageId"
-                 @attributes="AdditionalAttributes"
-                 @ref="_imageRef" />
-        </picture>
-        @if (IsPreload)
-        {
-            <SectionContent SectionName="@_imageId">
-                <link rel="preload"
-                      as="image"
-                      href="@FallbackImageSrc"
-                      type="@MimeType"
-                      imagesrcset="@_srcset"
-                      imagesizes="@_sizesAttr"
-                      fetchpriority="high" />
-            </SectionContent>
-        }
-    }
-    @if (HasCaption)
-    {
-        <figcaption id="@_imageId" class="@ComputedCaptionClass">@Caption</figcaption>
-    }
+           <!-- Overlay with loading spinner and status messages -->
+           <div class="overlay">
+               <div class="loader loader-spinner" aria-hidden="true">
+                   <div class="spinner"></div>
+               </div>
+               <p>@_loadingPercentage%</p>
+               <p class="optimization-text" aria-hidden="true">@_statusMessage</p>
+           </div>
+       </div>
+   }
+   else if (!string.IsNullOrEmpty(_error)) // Check if there was an error loading the image
+   {
+       <div class="error-container">
+           @if (!string.IsNullOrEmpty(DefaultSrc)) // Fallback to a default image if available
+           {
+               <picture>
+                   <source type="@MimeType" srcset="@DefaultSrc" />
+                   <img src="@DefaultSrc"
+                        alt="@Alt"
+                        class="@CssClass"
+                        style="@Style"
+                        width="@Width"
+                        height="@Height"
+                        @key="@_imageId" />
+               </picture>
+           }
+           else // Display an error message if no fallback image is available
+           {
+               <div class="error-message" role="alert" aria-live="assertive">
+                   <p class="sr-only">Image failed to load</p>
+                   <p>Failed to load image: @_error</p>
+               </div>
+           }
+       </div>
+   }
+   else // Render the image when loading is complete and no errors occurred
+   {
+       <picture>
+           <!-- Primary image source -->
+           <source type="@MimeType" srcset="@_srcset" data-srcset="@_dataSrcset" sizes="@_sizesAttr" />
+           <!-- Fallback image source -->
+           <source type="image/jpeg" srcset="@FallbackImageSrc" sizes="@_sizesAttr" />
+           <img src="@FallbackImageSrc"
+                alt="@Alt"
+                loading="@GetLoadAttributes.Loading"
+                decoding="@GetLoadAttributes.Decoding"
+                class="@GetLoadAttributes.Class @CssClass"
+                style="@ImageStyle"
+                width="@Width"
+                height="@Height"
+                aria-describedby="@_imageId"
+                @attributes="AdditionalAttributes"
+                @ref="_imageRef"
+                @key="@_imageId" />
+       </picture>
+       @if (IsPreload) // Preload the image if specified
+       {
+           <SectionContent SectionName="@_imageId">
+               <link rel="preload"
+                     as="image"
+                     href="@FallbackImageSrc"
+                     type="@MimeType"
+                     imagesrcset="@_srcset"
+                     imagesizes="@_sizesAttr"
+                     fetchpriority="high" />
+           </SectionContent>
+       }
+   }
+   @if (HasCaption) // Render a caption if specified
+   {
+       <figcaption id="@_imageId" class="@ComputedCaptionClass">@Caption</figcaption>
+   }
 </figure>
 
-@if (EnableDeveloperMode)
+@if (EnableDeveloperMode) // Render developer information panel if enabled
 {
-    <DeveloperInfoPanel ImageComponent="this" />
+   <DeveloperInfoPanel ImageComponent="this" />
 }
