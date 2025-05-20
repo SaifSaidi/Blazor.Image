@@ -32,7 +32,7 @@ Thank you for your support!
 
 ### ✅ Requirements
 
-- [.NET 9.0 SDK](https://dotnet.microsoft.com/en-us/download) or later
+- [.NET 8.0 SDK](https://dotnet.microsoft.com/en-us/download) or later
 - Blazor WebAssembly is **not yet supported**
 
 > ✅ *Currently supports local images only. Remote image support is coming soon.*
@@ -100,7 +100,6 @@ example to use:
 ```csharp
 // 👇 Add this line to serve optimized images
 app.MapBlazorImageRuntime();
-app.MapStaticAssets(); // For .NET 9
 ```
 
 Include required assets in **App.razor**:
@@ -108,7 +107,7 @@ Include required assets in **App.razor**:
 CSS:
 
 ```html
-<link rel="stylesheet" href="@Assets["AssemblyName.styles.css"]" />
+<link rel="stylesheet" href="AssemblyName.styles.css" />
 ```
 
  JS:
@@ -183,9 +182,6 @@ Use the `<Image>` component to render optimized, responsive, and accessible imag
 
 - **`AspectRatio`** (optional, `(int, int)`):  
   Used when `Fill="true"` to preserve image ratio.
-
-- **`EnableDeveloperMode`** (optional, `bool`):  
-  Shows extra debugging info (developer panel).
 
 - **`EnableInteractiveState`** (optional, `bool`):  
   Enables state interactivity for the image (e.g., loading, error state handling).
@@ -290,4 +286,4 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE.txt) f
 
 ## Keywords
 
-`blazor image optimization`, `blazor responsive images`, `blazor webp`, `dotnet image compression`, `blazor image component`, `blazor image resizing`, `static image optimization`, `blazor lazy loading images`, `blazor avif`, `aspnet image optimization`, `razor image library`
+blazor, blazor server, image optimization, image processing, responsive images, webp, avif, jpeg, png, dotnet, aspnetcore, blazor component, image compression, image caching, lazy loading, placeholder, seo, accessibility, adaptive images, middleware, .net, blazor image, static images, image resizing, image quality, image format, dashboard, cache management

@@ -1,7 +1,6 @@
 ﻿using BlazorImage.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-using System.Threading;
 using System.Threading.Channels;
 
 namespace BlazorImage
@@ -103,12 +102,6 @@ namespace BlazorImage
         public string? Sizes { get; set; }
 
         /// <summary>
-        /// When true, displays additional debugging information for developers.
-        /// </summary>
-        [Parameter]
-        public bool EnableDeveloperMode { get; set; }
-
-        /// <summary>
         /// CSS class to apply to the image caption.
         /// </summary>
         [Parameter]
@@ -187,6 +180,15 @@ namespace BlazorImage
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
+#if NET8_0
+            if (
+                EnableInteractiveState &&
+                !Priority &&
+                _imageRef.Context != null)
+            {
+                await JSRuntime.InvokeVoidAsync("BlazorLazyLoad", _imageRef);
+            }
+#elif NET9_0
             if (RendererInfo.IsInteractive &&
                 EnableInteractiveState &&
                 !Priority &&
@@ -194,8 +196,9 @@ namespace BlazorImage
             {
                 await JSRuntime.InvokeVoidAsync("BlazorLazyLoad", _imageRef);
             }
-        }
+#endif
 
+        }
         #endregion
 
         #region Image Processing & Rendering

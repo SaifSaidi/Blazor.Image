@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
 	<PropertyGroup>
-		<TargetFramework>net9.0</TargetFramework>
 		<AssemblyName>BlazorImage</AssemblyName>
 		<LangVersion>latest</LangVersion>
 		<Nullable>enable</Nullable>
@@ -27,6 +26,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<EmbedUntrackedSources>true</EmbedUntrackedSources>
 		<PackageProjectUrl>https://github.com/saifsaidi/BlazorImage</PackageProjectUrl>
+ 		<TargetFrameworks>net8.0;net9.0</TargetFrameworks>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -43,12 +43,20 @@
 	
 	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.0" />
-		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
-		<PackageReference Include="LiteDB" Version="5.0.21" />
-		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="9.0.3" />
-		<PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.0" /> 
-		<PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.0" />
+ 		<PackageReference Include="LiteDB" Version="5.0.21" />
 		<PackageReference Include="Magick.NET-Q16-AnyCPU" Version="14.6.0" />
+ 
+        <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.1" Condition="'$(TargetFramework)' == 'net8.0'" />
+        <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.0" Condition="'$(TargetFramework)' == 'net9.0'" />
+        <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" Condition="'$(TargetFramework)' == 'net8.0'" />
+        <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.0" Condition="'$(TargetFramework)' == 'net9.0'" />
+
+		<PackageReference Include="Microsoft.AspNetCore.Components" Condition="'$(TargetFramework)' == 'net8.0'" Version="8.0.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Condition="'$(TargetFramework)' == 'net8.0'" Version="8.0.0" />
+		
+		<PackageReference Include="Microsoft.AspNetCore.Components" Condition="'$(TargetFramework)' == 'net9.0'" Version="9.0.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Condition="'$(TargetFramework)' == 'net9.0'" Version="9.0.0" />
+
 	</ItemGroup>
 
 	<ItemGroup>
