@@ -123,13 +123,11 @@ internal sealed class BlazorImageService : IBlazorImageService
 
         var cacheKey = GenerateCacheKey(src, quality.Value, format!.Value);
 
-        _ = Task.Run(async () =>
-        {
-            await OptimizeAndCacheImage(src, quality.Value, format.Value, cacheKey, writer).ConfigureAwait(false);
-        });
-
+        _ = OptimizeAndCacheImage(src, quality.Value, format.Value, cacheKey, writer).ConfigureAwait(false);
+    
         return ValueTask.CompletedTask;
     }
+
 
 
     private async ValueTask OptimizeAndCacheImage(string src, int quality, FileFormat format, string cacheKey, ChannelWriter<ProgressUpdate> writer)
@@ -142,7 +140,7 @@ internal sealed class BlazorImageService : IBlazorImageService
 
         try
         {
-            processingLock = _locks.GetOrAdd(cacheKey, _ => new SemaphoreSlim(1, 1));
+            processingLock = _locks.GetOrAdd(cacheKey, static _ => new SemaphoreSlim(1, 1));
 
             await writer.WriteAsync(new ProgressUpdate(0, "Waiting for processing slot..."), CancellationToken.None).ConfigureAwait(false);
 
