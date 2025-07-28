@@ -60,12 +60,12 @@ internal sealed class ImageElementService : IImageElementService
         // Use GetOrAdd with instance context
         return _dictionaryCacheData.SourceInfoCache.GetOrAdd(key, static (k, instance) =>
         {
-            var fallback = instance.BuildFallbackPath(k.SanitizedName);
-            var placeholder = instance.BuildPlaceholderPath(k.SanitizedName, k.Format);
-
-            var source = k.Width == -1
-                ? instance.GetSourceSetString(k.SanitizedName, k.Quality, k.Format)
-                : instance.GetSingleSourceString(k.SanitizedName, k.Quality, k.Format, k.Width);
+            string fallback = instance.BuildFallbackPath(k.SanitizedName);
+            string placeholder = instance.BuildPlaceholderPath(k.SanitizedName, k.Format);
+ 
+            string source = k.Width == -1
+                 ? instance.GetSourceSetString(k.SanitizedName, k.Quality, k.Format)
+                 : instance.GetSingleSourceString(k.SanitizedName, k.Quality, k.Format, k.Width);
 
             return (source, fallback, placeholder);
 
@@ -83,24 +83,16 @@ internal sealed class ImageElementService : IImageElementService
         int actualSize = _configSizes[sizeIndex];
         string formatStr = format.ToString();
 
-        var sb = _stringBuilderPool.Get();
+        StringBuilder sb = _stringBuilderPool.Get();
         try
         {
             // Build URL: {dir}/{name}/{format}/{name}-{size}w-q{quality}.{format}
             AppendPathBase(sb, sanitizedName, formatStr);
-            sb.Append(sanitizedName);
-            sb.Append('-');
-            sb.Append(actualSize);
-            sb.Append(WidthQualitySuffix);
-            sb.Append(quality);
-            sb.Append('.');
-            sb.Append(formatStr);
-
-            // Append width descriptor: URL {size}w
-            sb.Append(' ');
-            sb.Append(actualSize);
-            sb.Append(WidthDescriptorSuffix);
-
+ 
+            sb.AppendJoin('-', sanitizedName, actualSize).Append(WidthQualitySuffix)
+              .Append(quality).Append('.').Append(formatStr)
+            .Append(' ').Append(actualSize).Append(WidthDescriptorSuffix);
+             
             return sb.ToString();
         }
         finally
@@ -127,18 +119,10 @@ internal sealed class ImageElementService : IImageElementService
 
                 // Append URL: {dir}/{name}/{format}/{name}-{size}w-q{quality}.{format}
                 AppendPathBase(sb, sanitizedName, formatStr);
-                sb.Append(sanitizedName);
-                sb.Append('-');
-                sb.Append(size); // Use efficient int append
-                sb.Append(WidthQualitySuffix);
-                sb.Append(quality); // Use efficient int append
-                sb.Append('.');
-                sb.Append(formatStr);
+                sb.AppendJoin('-', sanitizedName, size).Append(WidthQualitySuffix)
+                  .Append(quality).Append('.').Append(formatStr)
+                  .Append(' ').Append(size).Append(WidthDescriptorSuffix);
 
-                // Append width descriptor: URL {size}w
-                sb.Append(' ');
-                sb.Append(size); // Use efficient int append
-                sb.Append(WidthDescriptorSuffix);
 
                 // Append separator
                 if (i < _configSizes.Length - 1)
