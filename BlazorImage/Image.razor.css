@@ -94,7 +94,7 @@ figure > picture img {
 /* Lazy Loading & Transitions */
 figure > picture img._placeholder_lazy_load {
     filter: blur(var(--img-blur-amount));
-    transform: scale(1.02);
+/*    transform: scale(1.02);*/
     opacity: 0.9;
     transition: filter var(--img-transition-duration) ease, transform var(--img-transition-duration) ease-in-out, opacity var(--img-transition-duration) ease-in-out;
     will-change: filter, transform;
@@ -114,7 +114,7 @@ figure > picture img._placeholder_eager_load {
 
 figure > picture img.blazorlazyloaded {
     filter: none;
-    transform: scale(1);
+    transform: none;
     opacity: 1;
     background-color: transparent;
 }

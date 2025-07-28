@@ -128,8 +128,18 @@ namespace BlazorImage
         #endregion
 
         #region Internal Fields and State
+        enum ImageRenderState
+        {
+            Loading,
+            Error,
+            Ready
+        }
 
         private (int? Width, int? Height, bool? Fill, (int, int)? AspectRatio) _lastLayoutParams;
+        private ImageRenderState RenderState =>
+            !_isLoadComplete ? ImageRenderState.Loading :
+            !string.IsNullOrEmpty(_error) ? ImageRenderState.Error :
+            ImageRenderState.Ready;
 
         private ElementReference _imageRef;
         private bool _isLoadComplete;
