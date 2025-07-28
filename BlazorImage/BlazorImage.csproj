@@ -11,8 +11,8 @@
 		<Description>
 			Automatically optimize images used in Blazor projects (jpeg, png, webp and avif).
 		</Description>
-		<PackageVersion>1.0.4</PackageVersion>
-		<PackageReleaseNotes>Versions 1.0.4</PackageReleaseNotes>
+		<PackageVersion>1.0.5</PackageVersion>
+		<PackageReleaseNotes>version 1.0.5</PackageReleaseNotes>
 		<RepositoryUrl>https://github.com/saifsaidi/BlazorImage</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<PackageReadmeFile>readme.md</PackageReadmeFile>
@@ -34,17 +34,13 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<InternalsVisibleTo Include="BlazorImage.UnitTests" />
-	</ItemGroup>
-	
-	<ItemGroup>
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
 	</ItemGroup>
 	
 	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.0" />
  		<PackageReference Include="LiteDB" Version="5.0.21" />
-		<PackageReference Include="Magick.NET-Q16-AnyCPU" Version="14.6.0" />
+		<PackageReference Include="Magick.NET-Q16-AnyCPU" Version="14.7.0" />
  
         <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.1" Condition="'$(TargetFramework)' == 'net8.0'" />
         <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.0" Condition="'$(TargetFramework)' == 'net9.0'" />
