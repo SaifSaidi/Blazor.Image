@@ -3,71 +3,67 @@
 **Blazor Image** is a powerful image optimization library for [Blazor](https://dotnet.microsoft.com/en-us/apps/aspnet/web-apps/blazor) that automates compression, responsive sizing, and caching of static images (`.jpg`, `.png`, `.webp`, `.avif`)—all in one component.
 
 
-<img align="right" width="100px" height="100px" src="./BlazorImage/icon.png">
-
 Easily deliver optimized images with a single line:
 
 ```razor
-<Image Src="/images/sample.jpg" Alt="Descriptive alt text" Width="300" Height="200" />
+<Image Src="/images/sample.jpg" Alt="Descriptive alt text" Width="300" Height="200" Priority="true"  />
 ```
 
-If **BlazorImage** has been helpful in your projects, consider **starring** the repo on [GitHub]([https://github.com/your-repo-link](https://github.com/SaifSaidi/Blazor.Image))!  
-It’s a quick way to show support, boost visibility for others, and encourage continued development.
+> ⭐️ If **BlazorImage** helped you, please [star it on GitHub](https://github.com/SaifSaidi/Blazor.Image) to support visibility and development.
 
-Thank you for your support!
-
-## Features
-
-- **Optimized Images:** Compress JPEG, PNG, WebP, and AVIF formats with 70–90% size reduction.
-- **Lazy Loading & Placeholders:** Improve performance and perceived loading speed with lightweight placeholders.
-- **Flexible Output Formats:** Choose from WebP, JPEG, PNG, or AVIF to suit your needs.
-- **Smart Caching & Revalidation:** Efficient long-term caching with automatic revalidation—ensures images stay fresh without repeated processing.
-- **Responsive & Adaptive Support:** Define responsive sizes and aspect ratios for modern layouts.
-- **Accessibility & SEO Friendly:** Fully supports `alt` text, captions, and semantic markup.
-- **Interactive State Management:** Enable interaction-aware behavior via `EnableInteractiveState`.
-
-    ... and more
-
-## Getting Started
-
-### ✅ Requirements
-
-- [.NET 8.0 SDK](https://dotnet.microsoft.com/en-us/download) or later
-- Blazor WebAssembly is **not yet supported**
-
-> ✅ *Currently supports local images only. Remote image support is coming soon.*
 
 ---
 
-## 📦 Installation
-BlazorImage is available as a NuGet package: [![NuGet version (BlazorImage)](https://img.shields.io/nuget/v/BlazorImage.svg?style=flat-square)](https://www.nuget.org/packages/BlazorImage/)
+## 🚀 Features
 
-**Using .NET CLI:**
+* 📦 **Optimized Images** – Compress JPEG, PNG, WebP, and AVIF with up to 90% size reduction.
+* 💤 **Lazy Loading + Placeholders** – Enhance performance and loading speed.
+* 🖼 **Flexible Formats** – Output WebP, JPEG, PNG, or AVIF.
+* ⚡ **Smart Caching** – Efficient long-term caching with auto revalidation.
+* 📱 **Responsive Support** – Define sizes/aspect ratios for adaptive layouts.
+* ♿ **Accessible & SEO-Friendly** – Supports alt text, captions, semantics.
+* 🧠 **Interactive States** – Enable state-aware behavior via `EnableInteractiveState`.
+ 
+---
+
+## 🛠 Getting Started
+
+### Requirements
+
+* [.NET 8.0 SDK](https://dotnet.microsoft.com/en-us/download) or later
+* Blazor Server supported (Blazor WebAssembly not yet)
+
+> 🔒 *Supports local images only. Remote support coming soon.*
+
+### 📦 Install via NuGet
 
 ```bash
-dotnet add package BlazorImage --version 1.0.4
+dotnet add package BlazorImage --version 1.0.5
 ```
 
-**Or add a reference manually:**
-```bash
-<PackageReference Include="BlazorImage" Version="1.0.4" />
+Or add manually:
+
+```xml
+<PackageReference Include="BlazorImage" Version="1.0.5" />
 ```
 
+### 🔧 Setup
 
-### 🧩 Setup
+**In \_Imports.razor:**
 
-In **_Imports.razor**:
-
-```csharp
+```razor
 @using BlazorImage
 ```
 
-In **Program.cs**:
+**In Program.cs:**
+
 
 ```csharp
 builder.Services.AddBlazorImage();
 ```
-You can further configure BlazorImage with the following options within the AddBlazorImage method:
+
+configure BlazorImage options within the AddBlazorImage method:
+
 ```csharp
 builder.Services.AddBlazorImage(options =>
 {
@@ -90,43 +86,38 @@ builder.Services.AddBlazorImage(options =>
 
 ```
 
-Map required middleware in **Program.cs**:
+**Map required middleware in**:
 
 ```csharp
 app.MapBlazorImageRuntime();
 ```
 
-example to use:
-```csharp
-// 👇 Add this line to serve optimized images
-app.MapBlazorImageRuntime();
-```
-
-Include required assets in **App.razor**:
-
-CSS:
+**In App.razor:**
 
 ```html
 <link rel="stylesheet" href="AssemblyName.styles.css" />
-```
-
- JS:
- ```html
 <script src="_content/BlazorImage/BlazorImage.min.js"></script>
 ```
 
- 
-### Dashboard Endpoint
-
-Expose the image cache management UI:
-
-Enable with:
+### 🧪 Optional: Dashboard UI
 
 ```csharp
-app.MapBlazorImageDashboard("/endpoints/path");
+#if DEBUG // Recommended to enable only in development
+app.MapBlazorImageDashboard("/blazor-image-admin"); // Choose your preferred path
+#endif
 ```
+
+--- 
  
 ## `<Image>` Component
+
+<div style="margin:1rem 0; padding: 1rem; border: 1px solid #f5c6cb; border-radius: 0.375rem;">
+
+>**⚠️ Important:** Use `CssClass` instead of `class`, and `Style` instead of `style` for all styling.
+
+</div>
+
+
 
 Use the `<Image>` component to render optimized, responsive, and accessible images:
 
@@ -136,21 +127,21 @@ Use the `<Image>` component to render optimized, responsive, and accessible imag
 
 ### `<Image>` Component Parameters
 
-> **Note:** Use `CssClass` instead of `class`, and `Style` instead of `style` for all styling.
-
 - **`Src`** (required):  
   The path to the original image file. BlazorImage will handle the optimization.
 
 - **`Alt`** (required):  
   Alternative text for the image, crucial for accessibility and SEO.
 
-- **`Fill`** (optional, `bool`):  
-  If `true`, the image fills its container while maintaining aspect ratio. Defaults to `false`.
-
 - **`Width`, `Height`** (optional, `int?`):  
   Set fixed image dimensions in pixels.
 
-- **`Priority`** (optional, `bool`):  
+- **`Fill`** (optional, `bool`):  
+  If `true`, the image fills its container while maintaining aspect ratio. Defaults to `false`.
+
+    - **`AspectRatio`** (optional, `(int, int)`):        
+       Used when `Fill="true"` to preserve image ratio.
+- **`Priority`** Eager load image (optional, `bool`):  
   If `true`, the image loads eagerly. Defaults to `false`.
 
 - **`DefaultSrc`** (optional, `string`):  
@@ -180,8 +171,6 @@ Use the `<Image>` component to render optimized, responsive, and accessible imag
 - **`CaptionClass`** (optional, `string`):  
   CSS class for styling the caption.
 
-- **`AspectRatio`** (optional, `(int, int)`):  
-  Used when `Fill="true"` to preserve image ratio.
 
 - **`EnableInteractiveState`** (optional, `bool`):  
   Enables state interactivity for the image (e.g., loading, error state handling).
@@ -256,34 +245,30 @@ Use the `<Image>` component to render optimized, responsive, and accessible imag
 <Image Src="/images/product.jpg" Alt="Product shot" Caption="The latest product" CaptionClass="product-caption" />
 ```
 
+---
 
-## 🚀 Running the BlazorImage.Demo Project
+##  Demo Project
 
-The `BlazorImage.Demo` project is a sample application included in the repository that demonstrates how to use the BlazorImage library.
+Run the `BlazorImage.Demo` app to see examples in action.
 
+### Run Instructions
 
-### Steps to Run the Demo
+1. Clone the repository
+2. Install [.NET 9.0 SDK](https://dotnet.microsoft.com/en-us/download) or newer
+3. Build the solution
+4. Set `BlazorImage.Demo` as startup project
+5. Press F5 or run
 
-1. **Clone the Repository**  
-   Clone the BlazorImage repository to your local machine:
-   
-2. **Ensure Prerequisites**  
-   - Install the [.NET 9.0 SDK](https://dotnet.microsoft.com/en-us/download) or later.
-   - Ensure you have a compatible IDE like [Visual Studio](https://visualstudio.microsoft.com/) with Blazor support enabled.
+> Ensure `wwwroot` has sample images for demo display.
 
-3. **Build the Solution**  
-Build the entire solution.    
+---
 
-4. **Run the Demo Project**  
-   - Set the `BlazorImage.Demo` project as the startup project.
-   - Run the project (usually by pressing F5 or clicking the run button).
+## 📄 License
 
-> **Note:** Ensure that the `wwwroot` folder contains sample images for the demo to function correctly.
-  
+MIT License. See [LICENSE.txt](LICENSE.txt) for details.
 
-##  License
-This project is licensed under the MIT License. See the [LICENSE](LICENSE.txt) for full details.
+---
 
-## Keywords
+## 🔍 Keywords
 
-blazor, blazor server, image optimization, image processing, responsive images, webp, avif, jpeg, png, dotnet, aspnetcore, blazor component, image compression, image caching, lazy loading, placeholder, seo, accessibility, adaptive images, middleware, .net, blazor image, static images, image resizing, image quality, image format, dashboard, cache management
+blazor, image optimization, responsive images, lazy loading, webp, avif, jpeg, dotnet, blazor component, caching, middleware, seo, accessibility
