@@ -69,9 +69,7 @@ internal class ImageProcessingService : IImageProcessingService
 
     private void ApplyFormatSettings(MagickImage image, MagickFormat format, int quality)
     {
-        try
-        {
-            switch (format)
+        switch (format)
             {
                 case MagickFormat.WebP:
                     image.Settings.SetDefine("webp:method", "6");
@@ -133,11 +131,7 @@ internal class ImageProcessingService : IImageProcessingService
                     image.Quality = (uint)Math.Clamp(quality * 0.85, 0, 100);
                     break;
             }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning(ex, "Format-specific settings failed for {Format}. Proceeding with defaults.", format);
-        }
+        
     }
 
     private void ValidateInputParameters(string inputPath, uint quality)
