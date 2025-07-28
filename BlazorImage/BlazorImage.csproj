@@ -8,9 +8,7 @@
 		<PackageId>BlazorImage</PackageId>
 		<Title>BlazorImage</Title>
 		<Authors>Saif Saidi (Saif Al-Saidi)</Authors>
-		<Description>
-			Automatically optimize images used in Blazor projects (jpeg, png, webp and avif).
-		</Description>
+		<Description>Automatically optimize images used in Blazor projects (jpeg, png, webp and avif).</Description>
 		<PackageVersion>1.0.5</PackageVersion>
 		<PackageReleaseNotes>version 1.0.5</PackageReleaseNotes>
 		<RepositoryUrl>https://github.com/saifsaidi/BlazorImage</RepositoryUrl>
@@ -60,17 +58,16 @@
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
 		</None>
-	</ItemGroup>
-
-	<ItemGroup>
-		<None Update="icon.png">
+		 
+		<None Include="icon.png">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
 		</None>
-		<None Update="readme.md">
-			<Pack>true</Pack>
+		
+		<None Include="readme.md">
+			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
 		</None>
-	</ItemGroup>
+	</ItemGroup> 
 
 </Project>
